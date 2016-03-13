@@ -10,17 +10,70 @@ void U(void);
 void D(void);
 void F(void);
 void B(void);
+void numbertomove(int x);
 
 void algorithm(void);
 bool IsSolved(void);
 
 int solvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
+
 int unsolvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
+
 int workingmatrix[6][9];
 
 int main() {
     
-    ofstream fout("matrix.dat");
+    ifstream fin("moves.dat");
+    
+    
+    /*
+    //This piece of code will generate a file with numbers (moves) in vector syntax
+    
+    ofstream fout("moves.dat");
+    
+    for (int i=1; i<7; i++) {
+        for (int j=1; j<7; j++) {
+            for (int k=1; k<7; k++) {
+                for (int l=1; l<7; l++) {
+                    for (int m=1; m<7; m++) {
+                        for (int n=1; n<7; n++ ) {
+                            cout<<i<<j<<k<<l<<m<<n<<endl;
+                            fout<<i<<j<<k<<l<<m<<n<<endl;
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    */
+     
+    //this piece of code will receive input from the user regarding the state of the cube
+    
+    /*
+    
+    for (int i=0; i<6; i++) {
+        
+        int facevalues;
+        cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
+        cout<<"Please note that "<<endl;
+        cout<<"0 - Face with green center"<<endl;
+        cout<<"1 - Face with red center"<<endl;
+        cout<<"2 - Face with blue center"<<endl;
+        cout<<"3 - Face with orange center"<<endl;
+        cout<<"4 - Face with yellow center"<<endl;
+        cout<<"5 - Face with white center"<<endl;
+        cin>>facevalues;
+        //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
+        
+        //converts series of numbers into discrete separate numbers in array
+        
+        for (int j=8; j>=0; j--) {
+            unsolvedmatrix[i][j] = facevalues % 10 ;
+            facevalues /= 10;
+        }
+    }
     
     cout<<"State of cube before algorithm: "<<endl;
     
@@ -31,9 +84,11 @@ int main() {
         cout<<endl;
     }
     
-    //TEST: Combination of moves defined in void algorithm()(See function definition)
+    */
     
-    algorithm();
+    
+    algorithm();//will scramble the cube
+    
     
     cout<<"State of cube after algorithm: "<<endl;
     
@@ -44,14 +99,40 @@ int main() {
         cout<<endl;
     }
     
-    
-    
     cout<<"The cube is ";
     if (!IsSolved()) {
         cout<<"not";
     }
     cout<<" solved."<<endl;
     
+    //will 'push' each line in the text file into the program and test it
+    
+    int moves;
+    for (int i=0;i<46656;i++) {
+        vector<int> v;
+        fin>>moves;
+        cout<<moves<<endl;
+        /*
+        for (int i=5; i>=0; i++) {
+            numbertomove(moves % 10);
+            moves /= 10;
+        }
+        if (IsSolved()) {
+            cout<<moves;
+            break;
+        }
+        */
+    }
+    
+    
+    
+    
+    //TEST: Combination of moves defined in void algorithm()(See function definition)
+    
+
+    
+    
+     
     //TEST: How many times the algorithm will run before the cube is solved
     int reps;
     
@@ -62,12 +143,38 @@ int main() {
     }
     cout<<"The cube will be solved after the algorithm is repeated "<<reps+1<<" times."<<endl;
     
+    
+    //TEST: Turning sequence of numbers into moves for implementation;
+    
+    /*
+     
+    int x[4]={1,2,3,4};
+    
+    for (int i=0;i<4;i++) {
+        numbertomove(x[i]);
+        cout<<"The state of the cube after move "<<i<<" is "<<endl;
+        for (int i=0;i<6;i++) {
+            for (int j=0;j<9;j++) {
+                cout<<unsolvedmatrix[i][j];
+            }
+            cout<<endl;
+        }
+        cout<<"The cube is ";
+        if (!IsSolved()) {
+            cout<<"not";
+        }
+        cout<<" solved."<<endl;
+        
+    }
+     
+     */
+    
     return 0;
 }
 
 
 
-
+//function corresponding to rotating left layer of cube (white facing left) clockwise
 void R() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
@@ -124,7 +231,6 @@ void R() {
     workingmatrix[5][7]=unsolvedmatrix[5][7];
     workingmatrix[5][8]=unsolvedmatrix[5][8];
     
-    
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
@@ -133,7 +239,7 @@ void R() {
     }
 };
 
-
+//function corresponding to rotating left layer of cube (yellow facing right) clockwise
 void L() {
     workingmatrix[0][0]=unsolvedmatrix[1][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
@@ -198,6 +304,7 @@ void L() {
     }
 };
 
+//function corresponding to rotating upper layer of cube (blue facing up) clockwise
 void U() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
@@ -262,6 +369,7 @@ void U() {
     }
 };
 
+//function corresponding to rotating lower layer of cube (with green facing down) clockwise
 void D() {
     workingmatrix[0][0]=unsolvedmatrix[0][6];
     workingmatrix[0][1]=unsolvedmatrix[0][3];
@@ -326,6 +434,7 @@ void D() {
     }
 };
 
+//function corresponding to rotating front of cube (red) clockwise
 void F() {
     workingmatrix[0][0]=unsolvedmatrix[4][6];
     workingmatrix[0][1]=unsolvedmatrix[4][3];
@@ -390,6 +499,7 @@ void F() {
     }
 };
 
+//function corresponding to rotating back of cube (orange) clockwise
 void B() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
@@ -454,6 +564,7 @@ void B() {
     }
 };
 
+//function to check whether the cube is in a solved state
 bool IsSolved() {
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
@@ -466,9 +577,52 @@ bool IsSolved() {
 };
 
 void algorithm() {
-    
-    U();
+    R();
+    R();
+    R();
     D();
+    D();
+    D();
+    L();
+    L();
+    L();
+    U();
+    U();
+    U();
+    F();
+    F();
+    F();
+    B();
+    B();
+    B();
+};
 
+//function to convert series of moves (in number form) to functions
+void numbertomove(int x) {
+    
+    switch (x) {
+        case 1: {
+            L();
+            break;
+        } case 2: {
+            R();
+            break;
+        } case 3: {
+            U();
+            break;
+        } case 4: {
+            D();
+            break;
+        } case 5: {
+            F();
+            break;
+        } case 6: {
+            B();
+            break;
+        } default: {
+            cout<<"This should never print because all numbers used will be between 1 and 6"<<endl;
+        }
+    }
+    
 };
 
