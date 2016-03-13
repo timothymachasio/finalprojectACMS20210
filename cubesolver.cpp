@@ -11,6 +11,7 @@ void D(void);
 void F(void);
 void B(void);
 void numbertomove(int x);
+void printcube(void);
 
 void algorithm(void);
 bool IsSolved(void);
@@ -25,79 +26,103 @@ int main() {
     
     ifstream fin("moves.dat");
     
+    //these variables will hold the original values the user inputs
+    
+    int face0;
+    int face1;
+    int face2;
+    int face3;
+    int face4;
+    int face5;
     
     /*
-    //This piece of code will generate a file with numbers (moves) in vector syntax
-    
-    ofstream fout("moves.dat");
-    
-    for (int i=1; i<7; i++) {
-        for (int j=1; j<7; j++) {
-            for (int k=1; k<7; k++) {
-                for (int l=1; l<7; l++) {
-                    for (int m=1; m<7; m++) {
-                        for (int n=1; n<7; n++ ) {
-                            cout<<i<<j<<k<<l<<m<<n<<endl;
-                            fout<<i<<j<<k<<l<<m<<n<<endl;
-                            
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    */
+     //This piece of code will generate a file with numbers representing possible moves of length 6 or less (test case) 
      
+     ofstream fout("moves.dat");
+     
+     for (int i=1; i<7; i++) {
+     for (int j=1; j<7; j++) {
+     for (int k=1; k<7; k++) {
+     for (int l=1; l<7; l++) {
+     for (int m=1; m<7; m++) {
+     for (int n=1; n<7; n++ ) {
+     cout<<i<<j<<k<<l<<m<<n<<endl;
+     fout<<i<<j<<k<<l<<m<<n<<endl;
+     
+     }
+     }
+     }
+     }
+     }
+     }
+     
+     */
+    
     //this piece of code will receive input from the user regarding the state of the cube
     
-    /*
+     
+     for (int i=0; i<6; i++) {
+     
+     int facevalues;
+     cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
+     cout<<"Please note that "<<endl;
+     cout<<"0 - Face with green center"<<endl;
+     cout<<"1 - Face with red center"<<endl;
+     cout<<"2 - Face with blue center"<<endl;
+     cout<<"3 - Face with orange center"<<endl;
+     cout<<"4 - Face with yellow center"<<endl;
+     cout<<"5 - Face with white center"<<endl;
+     cin>>facevalues;
+         
+         switch (i) {
+             case 0: {
+                 face0 = facevalues;
+                 break;
+             } case 1: {
+                 face1 = facevalues;
+                 break;
+             } case 2: {
+                 face2 = facevalues;
+                 break;
+             } case 3: {
+                 face3 = facevalues;
+                 break;
+             } case 4: {
+                 face4 = facevalues;
+                 break;
+             } case 5: {
+                 face5 = facevalues;
+                 break;
+             } default: {
+                 cout<<"This will never print given the constraint of the loop conditional"<<endl;
+             }
+         }
+     //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
+     
+     //converts series of numbers into discrete separate numbers in array
+     
+     for (int j=8; j>=0; j--) {
+     unsolvedmatrix[i][j] = facevalues % 10 ;
+     facevalues /= 10;
+     }
+     }
+     
+     cout<<"State of cube before algorithm: "<<endl;
+     
+     for (int i=0;i<6;i++) {
+     for (int j=0;j<9;j++) {
+     cout<<unsolvedmatrix[i][j];
+     }
+     cout<<endl;
+     }
     
-    for (int i=0; i<6; i++) {
-        
-        int facevalues;
-        cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
-        cout<<"Please note that "<<endl;
-        cout<<"0 - Face with green center"<<endl;
-        cout<<"1 - Face with red center"<<endl;
-        cout<<"2 - Face with blue center"<<endl;
-        cout<<"3 - Face with orange center"<<endl;
-        cout<<"4 - Face with yellow center"<<endl;
-        cout<<"5 - Face with white center"<<endl;
-        cin>>facevalues;
-        //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
-        
-        //converts series of numbers into discrete separate numbers in array
-        
-        for (int j=8; j>=0; j--) {
-            unsolvedmatrix[i][j] = facevalues % 10 ;
-            facevalues /= 10;
-        }
-    }
     
-    cout<<"State of cube before algorithm: "<<endl;
-    
-    for (int i=0;i<6;i++) {
-        for (int j=0;j<9;j++) {
-            cout<<unsolvedmatrix[i][j];
-        }
-        cout<<endl;
-    }
-    
-    */
-    
-    
-    algorithm();//will scramble the cube
+    algorithm();//will scramble the cube as defined in the algorithm() function below
     
     
     cout<<"State of cube after algorithm: "<<endl;
     
-    for (int i=0;i<6;i++) {
-        for (int j=0;j<9;j++) {
-            cout<<unsolvedmatrix[i][j];
-        }
-        cout<<endl;
-    }
+    printcube();
     
     cout<<"The cube is ";
     if (!IsSolved()) {
@@ -108,64 +133,68 @@ int main() {
     //will 'push' each line in the text file into the program and test it
     
     int moves;
+    
     for (int i=0;i<46656;i++) {
-        vector<int> v;
         fin>>moves;
-        cout<<moves<<endl;
-        /*
-        for (int i=5; i>=0; i++) {
+        cout<<moves;
+        for (int i=0; i<6; i++) {
             numbertomove(moves % 10);
             moves /= 10;
         }
+        
+        cout<<endl;
+        
         if (IsSolved()) {
-            cout<<moves;
+            printcube();
             break;
+        } else {
+            cout<<"The cube has not yet been solved"<<endl;
+            printcube();
         }
-        */
     }
-    
-    
     
     
     //TEST: Combination of moves defined in void algorithm()(See function definition)
     
-
     
     
-     
+    
+    
     //TEST: How many times the algorithm will run before the cube is solved
-    int reps;
-    
-    while (!IsSolved()) {
-        
-        algorithm();
-        reps++;
-    }
-    cout<<"The cube will be solved after the algorithm is repeated "<<reps+1<<" times."<<endl;
-    
+    /*
+     
+     int reps;
+     
+     while (!IsSolved()) {
+     algorithm();
+     reps++;
+     }
+     cout<<"The cube will be solved after the algorithm is repeated "<<reps+1<<" times."<<endl;
+     
+     */
     
     //TEST: Turning sequence of numbers into moves for implementation;
     
     /*
      
-    int x[4]={1,2,3,4};
-    
-    for (int i=0;i<4;i++) {
-        numbertomove(x[i]);
-        cout<<"The state of the cube after move "<<i<<" is "<<endl;
-        for (int i=0;i<6;i++) {
-            for (int j=0;j<9;j++) {
-                cout<<unsolvedmatrix[i][j];
-            }
-            cout<<endl;
-        }
-        cout<<"The cube is ";
-        if (!IsSolved()) {
-            cout<<"not";
-        }
-        cout<<" solved."<<endl;
-        
-    }
+     int x[4]={1,2,3,4};
+     
+     for (int i=0;i<4;i++) {
+     numbertomove(x[i]);
+     cout<<"The state of the cube after move "<<i<<" is "<<endl;
+     for (int i=0;i<6;i++) {
+     for (int j=0;j<9;j++) {
+     cout<<unsolvedmatrix[i][j];
+     }
+     cout<<endl;
+     }
+     cout<<"The cube is ";
+     if (!IsSolved()) {
+     cout<<"not";
+     }
+     cout<<" solved."<<endl;
+     
+     }
      
      */
     
@@ -577,24 +606,25 @@ bool IsSolved() {
 };
 
 void algorithm() {
-    R();
-    R();
-    R();
-    D();
-    D();
-    D();
-    L();
-    L();
-    L();
-    U();
-    U();
-    U();
-    F();
-    F();
-    F();
+    
     B();
     B();
     B();
+    F();
+    F();
+    F();
+    D();
+    D();
+    D();
+    U();
+    U();
+    U();
+    R();
+    R();
+    R();
+    L();
+    L();
+    L();
 };
 
 //function to convert series of moves (in number form) to functions
@@ -624,5 +654,15 @@ void numbertomove(int x) {
         }
     }
     
+};
+
+void printcube() {
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            cout<<unsolvedmatrix[i][j];
+        }
+        cout<<endl;
+    }
 };
 
