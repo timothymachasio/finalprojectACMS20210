@@ -21,6 +21,7 @@ int solvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2
 int unsolvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
 
 int workingmatrix[6][9];
+int originalmatrix[6][9];//keeps the original values of the unsolved matrix (user-input cube state)
 
 int main() {
     
@@ -28,15 +29,8 @@ int main() {
     
     //these variables will hold the original values the user inputs
     
-    int face0;
-    int face1;
-    int face2;
-    int face3;
-    int face4;
-    int face5;
-    
     /*
-     //This piece of code will generate a file with numbers representing possible moves of length 6 or less (test case) 
+     //This piece of code will generate a file with numbers representing possible moves of length 6 or less (test case)
      
      ofstream fout("moves.dat");
      
@@ -60,64 +54,39 @@ int main() {
     
     //this piece of code will receive input from the user regarding the state of the cube
     
-     
-     for (int i=0; i<6; i++) {
-     
-     int facevalues;
-     cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
-     cout<<"Please note that "<<endl;
-     cout<<"0 - Face with green center"<<endl;
-     cout<<"1 - Face with red center"<<endl;
-     cout<<"2 - Face with blue center"<<endl;
-     cout<<"3 - Face with orange center"<<endl;
-     cout<<"4 - Face with yellow center"<<endl;
-     cout<<"5 - Face with white center"<<endl;
-     cin>>facevalues;
-         
-         switch (i) {
-             case 0: {
-                 face0 = facevalues;
-                 break;
-             } case 1: {
-                 face1 = facevalues;
-                 break;
-             } case 2: {
-                 face2 = facevalues;
-                 break;
-             } case 3: {
-                 face3 = facevalues;
-                 break;
-             } case 4: {
-                 face4 = facevalues;
-                 break;
-             } case 5: {
-                 face5 = facevalues;
-                 break;
-             } default: {
-                 cout<<"This will never print given the constraint of the loop conditional"<<endl;
-             }
-         }
-     //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
-     
-     //converts series of numbers into discrete separate numbers in array
-     
-     for (int j=8; j>=0; j--) {
-     unsolvedmatrix[i][j] = facevalues % 10 ;
-     facevalues /= 10;
-     }
-     }
-     
-     cout<<"State of cube before algorithm: "<<endl;
-     
-     for (int i=0;i<6;i++) {
-     for (int j=0;j<9;j++) {
-     cout<<unsolvedmatrix[i][j];
-     }
-     cout<<endl;
-     }
     
+    for (int i=0; i<6; i++) {
+        
+        int facevalues;
+        cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
+        cout<<"Please note that "<<endl;
+        cout<<"0 - Face with green center"<<endl;
+        cout<<"1 - Face with red center"<<endl;
+        cout<<"2 - Face with blue center"<<endl;
+        cout<<"3 - Face with orange center"<<endl;
+        cout<<"4 - Face with yellow center"<<endl;
+        cout<<"5 - Face with white center"<<endl;
+        cin>>facevalues;
+        
+        //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
+        
+        //converts series of numbers into discrete separate numbers in array
+        
+        for (int j=8; j>=0; j--) {
+            unsolvedmatrix[i][j] = facevalues % 10 ;
+            originalmatrix[i][j] = facevalues % 10 ;
+            facevalues /= 10;
+        }
+    }
     
-    algorithm();//will scramble the cube as defined in the algorithm() function below
+    cout<<"State of cube before algorithm: "<<endl;
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            cout<<unsolvedmatrix[i][j];
+        }
+        cout<<endl;
+    }
     
     
     cout<<"State of cube after algorithm: "<<endl;
@@ -145,10 +114,19 @@ int main() {
         cout<<endl;
         
         if (IsSolved()) {
-            printcube();
+            cout<<"The cube has been solved! See for yourself: "<<endl;
+            printcube();//print the cube then exit
             break;
         } else {
             cout<<"The cube has not yet been solved"<<endl;
+            cout<<"Cube before reassignment"<<endl;
+            printcube();
+            for (int i=0;i<6;i++) {
+                for (int j=0;j<9;j++) {
+                    unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of original matrix to unsolved matrix and try again
+                }
+            }
+            cout<<"Cube after reassignment"<<endl;
             printcube();
         }
     }
@@ -264,7 +242,6 @@ void R() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
 
@@ -329,10 +306,8 @@ void L() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
-
 //function corresponding to rotating upper layer of cube (blue facing up) clockwise
 void U() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
@@ -394,7 +369,6 @@ void U() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
 
@@ -459,7 +433,6 @@ void D() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
 
@@ -524,7 +497,6 @@ void F() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
 
@@ -589,7 +561,6 @@ void B() {
         for (int j=0;j<9;j++) {
             unsolvedmatrix[i][j]=workingmatrix[i][j];
         }
-        cout<<endl;
     }
 };
 
