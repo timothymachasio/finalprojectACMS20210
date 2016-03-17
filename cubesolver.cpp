@@ -1,27 +1,43 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
-
+//function turns the right face of the cube clockwise
 void R(void);
+//function turns the left face of the cube clockwise
 void L(void);
+//function turns the upper face of the cube clockwise
 void U(void);
+//function turns the lower face of the cube clockwise
 void D(void);
+//function turns the front face of the cube clockwise
 void F(void);
+//function turns the back face of the cube clockwise
 void B(void);
+//function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
 void numbertomove(int x);
+//function prints the current state of the cube
 void printcube(void);
-
+//function takes in number representing move and prints out the corresponding move
+void printmove(int x);
+//function performs a set of moves defined in the void algorithm() function
 void algorithm(void);
+//function checks whether cube is solved
 bool IsSolved(void);
 
+//contains values for a solved cube
 int solvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
 
-int unsolvedmatrix[6][9];
+//contains values for an unsolved cube (what the user inputs)
+int unsolvedmatrix[6][9] = {{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
 
+//holds new values for the unsolved matrix as moves are performed on the cube.
 int workingmatrix[6][9];
-int originalmatrix[6][9];//keeps the original values of the unsolved matrix (user-input cube state)
+
+//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above
+int originalmatrix[6][9] ={{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
 
 int main() {
     
@@ -54,7 +70,7 @@ int main() {
     
     //this piece of code will receive input from the user regarding the state of the cube
     
-    
+    /*
     for (int i=0; i<6; i++) {
         
         int facevalues;
@@ -79,6 +95,7 @@ int main() {
         }
     }
     
+    
     cout<<"State of cube before algorithm: "<<endl;
     
     for (int i=0;i<6;i++) {
@@ -88,6 +105,7 @@ int main() {
         cout<<endl;
     }
     
+     */
     
     cout<<"State of cube after algorithm: "<<endl;
     
@@ -106,6 +124,7 @@ int main() {
     
     for (int i=0;i<46656;i++) {
         fin>>moves;
+        
         fin>>movesbuffer;//captures the original value of 'moves' since the value of 'moves' will change as the 'for' loop below runs.
         
         cout<<moves;
@@ -120,6 +139,12 @@ int main() {
         if (IsSolved()) {
             cout<<"The cube has been solved! See for yourself: "<<endl;
             printcube();//print the cube then exit
+            cout<<"The moves used to solve the cube were "<<endl;
+            for (int i=0;i<6;i++) {
+                printmove(movesbuffer % 10);
+                movesbuffer /= 10;
+                cout<<endl;
+            }
             break;
         } else {
             cout<<"The cube has not yet been solved"<<endl;
@@ -132,8 +157,6 @@ int main() {
             }
             cout<<"Cube after reassignment"<<endl;
             printcube();
-            cout<<"The moves used to solve the cube were "<<movesbuffer<<endl;
-            
         }
     }
     
@@ -632,6 +655,33 @@ void numbertomove(int x) {
     }
     
 };
+
+void printmove(int x) {
+    
+    switch(x) {
+        case 1: {
+            cout<<" L "<<endl;
+            break;
+        } case 2 : {
+            cout<<" R "<<endl;
+            break;
+        } case 3 : {
+            cout<<" U "<<endl;
+            break;
+        } case 4 : {
+            cout<<" D "<<endl;
+            break;
+        } case 5 : {
+            cout<<" F "<<endl;
+            break;
+        } case 6 : {
+            cout<<" B "<<endl;
+            break;
+        } default : {
+            cout<<"This should never print because all numbers used will be betweeen 1 and 6"<<endl;
+        }
+    }
+}
 
 void printcube() {
     
