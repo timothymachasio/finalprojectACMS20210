@@ -129,7 +129,9 @@ int main() {
     int moves;//variable stores the set of moves 'pushed' to it by the input stream
     int movesbuffer;//keeps the value of the original set of moves ('moves') above is manipulated by the 'for' loop below
     
-    //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long). THE MECHANISM COULD BE USED FOR FINAL IMPLEMENTATION.
+    //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long).
+    //IT IS A BASIC DEPTH-FIRST SEARCH. THE SEARCH TREE HAS A DEPTH OF 6, AND A BRANCHING FACTOR OF 6
+    //THE FINAL IMPLEMENTATION OF OUR PROJECT WILL ATTEMPT TO UTILIZE AN ITERATIVE DEEPENING DEPTH-FIRST SEARCH
     
     for (int i=0;i<46656;i++) {
         fin>>moves;//stores the current set of moves to be executed
