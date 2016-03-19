@@ -1,3 +1,8 @@
+// ACMS20210 Final Project: Rubik's Cube Solver
+// Team Members: Timothy Machasio, Nick Courtney and Colin Humble
+// Instructor: Daniel Brake
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -41,6 +46,8 @@ int originalmatrix[6][9] ={{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,
 
 int main() {
     
+    vector<int> solution;//keeps correctly ordered sequence of moves required to solve the cube
+    
     ifstream fin("moves.dat");
     
     //these variables will hold the original values the user inputs
@@ -68,7 +75,7 @@ int main() {
      
      */
     
-    //this piece of code will receive input from the user regarding the state of the cube
+    //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER
     
     /*
     for (int i=0; i<6; i++) {
@@ -107,29 +114,29 @@ int main() {
     
      */
     
-    cout<<"State of cube after algorithm: "<<endl;
-    
+    cout<<"The state of the cube is as follows:"<<endl;
+    cout<<endl;
     printcube();
-    
+    cout<<endl;
     cout<<"The cube is ";
     if (!IsSolved()) {
         cout<<"not";
     }
     cout<<" solved."<<endl;
     
-    //will 'push' each line in the text file into the program and test it
     
-    int moves;
-    int movesbuffer;
+    //'pushes' each line in the text file (which represents a combination of moves) in an attempt to solve the cube
+    int moves;//variable stores the set of moves 'pushed' to it by the input stream
+    int movesbuffer;//keeps the value of the original set of moves ('moves') above is manipulated by the 'for' loop below
+    
+    //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long). THE MECHANISM COULD BE USED FOR FINAL IMPLEMENTATION.
     
     for (int i=0;i<46656;i++) {
-        fin>>moves;
+        fin>>moves;//stores the current set of moves to be executed
         
-        fin>>movesbuffer;//captures the original value of 'moves' since the value of 'moves' will change as the 'for' loop below runs.
-        
-        cout<<moves;
+        movesbuffer=moves;//captures a copy of the original value of 'moves' since the value of 'moves' will change as the 'for' loop below runs.
         for (int i=0; i<6; i++) {
-            //NOTE::THIS WILL RUN THE MOVES IN REVERSE
+            //NOTE::THIS WILL RUN THE MOVES IN REVERSE (from the last digit to the first digit)
             numbertomove(moves % 10);
             moves /= 10;
         }
@@ -140,31 +147,37 @@ int main() {
             cout<<"The cube has been solved! See for yourself: "<<endl;
             printcube();//print the cube then exit
             cout<<"The moves used to solve the cube were "<<endl;
+            
+            //loop stores discrete moves in vector and reverses order in which moves were executed (to match the order of the input sequence of numbers)
             for (int i=0;i<6;i++) {
-                printmove(movesbuffer % 10);
+                solution.push_back(movesbuffer % 10);
                 movesbuffer /= 10;
+            }
+            
+            //loops prints out each move in the correct order of implementation (from vector)
+            for (int i=0;i<6;i++) {
+                printmove(solution[i]);
                 cout<<endl;
             }
             break;
+            
+            
         } else {
+            
+            
             cout<<"The cube has not yet been solved"<<endl;
             cout<<"Cube before reassignment"<<endl;
             printcube();
             for (int i=0;i<6;i++) {
                 for (int j=0;j<9;j++) {
-                    unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of original matrix to unsolved matrix and try again
+                    unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of originalmatrix to unsolvedmatrix before trying again
                 }
             }
             cout<<"Cube after reassignment"<<endl;
             printcube();
         }
+        
     }
-    
-    
-    //TEST: Combination of moves defined in void algorithm()(See function definition)
-    
-    
-    
     
     
     //TEST: How many times the algorithm will run before the cube is solved
@@ -593,7 +606,6 @@ void B() {
     }
 };
 
-//function to check whether the cube is in a solved state
 bool IsSolved() {
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
