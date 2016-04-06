@@ -21,6 +21,20 @@ void D(void);
 void F(void);
 //function turns the back face of the cube clockwise
 void B(void);
+//these functions turn the cube anticlockwise
+void Ri(void);
+void Li(void);
+void Ui(void);
+void Di(void);
+void Fi(void);
+void Bi(void);
+//these functions turn the associated face of the cube twice
+void R2(void);
+void L2(void);
+void U2(void);
+void D2(void);
+void F2(void);
+void B2(void);
 //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
 void numbertomove(int x);
 //function prints the current state of the cube
@@ -608,6 +622,63 @@ void B() {
     }
 };
 
+//these functions turn the cube anticlockwise
+void Ri(void) {
+    R();
+    R();
+    R();
+};
+void Li(void) {
+    L();
+    L();
+    L();
+};
+void Ui(void) {
+    U();
+    U();
+    U();
+};
+void Di(void) {
+    D();
+    D();
+    D();
+};
+void Fi(void) {
+    F();
+    F();
+    F();
+};
+void Bi(void) {
+    B();
+    B();
+    B();
+};
+//these functions turn the associated face of the cube twice
+void R2(void) {
+    R();
+    R();
+};
+void L2(void) {
+    L();
+    L();
+};
+void U2(void) {
+    U();
+    U();
+};
+void D2(void) {
+    D();
+    D();
+};
+void F2(void) {
+    F();
+    F();
+};
+void B2(void) {
+    B();
+    B();
+};
+
 bool IsSolved() {
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
@@ -619,26 +690,15 @@ bool IsSolved() {
     return true;
 };
 
+//this is the algorithm that was used to scramble the cube into the state the test program solves
 void algorithm() {
     
-    B();
-    B();
-    B();
-    F();
-    F();
-    F();
-    D();
-    D();
-    D();
-    U();
-    U();
-    U();
-    R();
-    R();
-    R();
-    L();
-    L();
-    L();
+    Bi();
+    Fi();
+    Di();
+    Ui();
+    Ri();
+    Li();
 };
 
 //function to convert series of moves (in number form) to functions
