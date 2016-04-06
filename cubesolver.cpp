@@ -7,8 +7,20 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <string>
+#include <cmath>
 
 using namespace std;
+//this function checks whether everything the user inputs is in the allowed alphabetical form
+bool AllAllowedCharacters(string s);
+//this function converts a single digit (color code) and returns its corresponding color
+string Number2Color(int number);
+//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
+int Letter2Digit (char c);
+//This function checks to ensure the user is entering the right face of the cube
+bool IsCorrectFace (string userinput, int face);
+//this function converts the string a user inputs into an integer which the program works with
+int String2Number (string s);
 //function turns the right face of the cube clockwise
 void R(void);
 //function turns the left face of the cube clockwise
@@ -64,50 +76,51 @@ int main() {
     
     ifstream fin("moves.dat");
     
-    //these variables will hold the original values the user inputs
+    //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER AND VALIDATES IT
     
-    /*
-     //This piece of code will generate a file with numbers representing possible moves of length 6 or less (test case)
-     
-     ofstream fout("moves.dat");
-     
-     for (int i=1; i<7; i++) {
-     for (int j=1; j<7; j++) {
-     for (int k=1; k<7; k++) {
-     for (int l=1; l<7; l++) {
-     for (int m=1; m<7; m++) {
-     for (int n=1; n<7; n++ ) {
-     cout<<i<<j<<k<<l<<m<<n<<endl;
-     fout<<i<<j<<k<<l<<m<<n<<endl;
-     
-     }
-     }
-     }
-     }
-     }
-     }
-     
-     */
     
-    //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER
-    
-    /*
     for (int i=0; i<6; i++) {
         
-        int facevalues;
-        cout<<"Please enter face "<<i<<" of the Rubik's cube: "<<endl;
+        string userinput;//this string holds the value of user-friendly input (a string)
+        cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<endl;
+        cout<<endl;
+        cout<<"Hold the cube such that: "<<endl;
+        //function to convert face number into directions will be invoked here for user-friendliness
         cout<<"Please note that "<<endl;
-        cout<<"0 - Face with green center"<<endl;
-        cout<<"1 - Face with red center"<<endl;
-        cout<<"2 - Face with blue center"<<endl;
-        cout<<"3 - Face with orange center"<<endl;
-        cout<<"4 - Face with yellow center"<<endl;
-        cout<<"5 - Face with white center"<<endl;
-        cin>>facevalues;
+        cout<<"g - Green"<<endl;
+        cout<<"r - Red"<<endl;
+        cout<<"b - Blue"<<endl;
+        cout<<"o - Orange"<<endl;
+        cout<<"y - Yellow"<<endl;
+        cout<<"w - White"<<endl;
+        cout<<endl;
+        cout<<"Enter everything in lowercase"<<endl;
+        cin>>userinput;
         
-        //we will need to create a function which validates the length the integer to make sure it's 9. No more, no less.
         
-        //converts series of numbers into discrete separate numbers in array
+        //step 1 of input validation: ensure that user only enters alphabetic characters
+        while (!AllAllowedCharacters(userinput)) {
+            cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<endl;
+            cin>>userinput;//overwrites invalid values entered
+        }
+        
+        //step 2 of input validation: ensure that user has entered nine colors for each side of the cube
+        while (!(userinput.size()==9)) {
+            cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<endl;
+            cin>>userinput;//overwrites invalid values entered
+        }
+        
+        
+        //step 3 of input validation: to ensure the user has entered the correct face
+        while (!IsCorrectFace(userinput,i)) {
+            cout<<"You entered values for the wrong face. Please enter colors for the face with a "<<Number2Color(i)<<" center as per the instructions."<<endl;
+            cin>>userinput;//overwrites the invalid values entered
+        }
+        
+        int facevalues = String2Number(userinput);//this integer holds an integer value that corresponds to the string a user inputs
+        cout<<"Your input converts to "<<String2Number(userinput)<<endl;
+        
+        //converts series of numbers into discrete separate numbers in array. Last digit is input first (In line with directions given to the user on how to enter the state of the cube.
         
         for (int j=8; j>=0; j--) {
             unsolvedmatrix[i][j] = facevalues % 10 ;
@@ -126,7 +139,6 @@ int main() {
         cout<<endl;
     }
     
-     */
     
     cout<<"The state of the cube is as follows:"<<endl;
     cout<<endl;
@@ -237,7 +249,86 @@ int main() {
     return 0;
 }
 
-
+//this function checks whether everything the user inputs is in the allowed alphabetical form
+bool AllAllowedCharacters(string s) {
+    for (int i=0;i<s.size();i++) {
+        char c=s.at(i);
+        if ((!isalpha(c))||!(c=='g'||c=='r'||c=='b'||c=='o'||c=='y'||c=='w')) {//checks whether character is alphabetic AND either g,r,b,o,y or w
+            return false;
+        }
+    }
+    return true;
+};
+//this function converts a single digit (color code) and returns its corresponding color
+string Number2Color(int number) {
+    switch (number) {
+        case 0: {
+            return "green";
+            break;
+        } case 1: {
+            return "red";
+            break;
+        } case 2: {
+            return "blue";
+            break;
+        } case 3: {
+            return "orange";
+            break;
+        } case 4: {
+            return "yellow";
+            break;
+        } case 5: {
+            return "white";
+            break;
+        } default: {
+            return "error";
+        }
+    }
+};
+//This function checks to ensure the user is entering the right face of the cube
+bool IsCorrectFace (string userinput, int face) {
+    if (Letter2Digit(userinput.at(4))==face) {//checks to see whether fourth element corresponds to the face the program is asking for
+        return true;
+    } else {
+        return false;
+    }
+};
+//this function converts a user-input string into an integer which the program operates on
+int String2Number (string s) {
+    int result;
+    for (int i=8;i>=0;i--) {
+        result+=((Letter2Digit(s.at(i)))*(pow(10,(8-i))));//multiplies the corresponding value of each digit with corresponding place to find place value, then adds everything together. Starts with last digit, adds 10*next digit, etc.
+    }
+    
+    return result;
+};
+//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
+int Letter2Digit (char c) {
+    
+    switch (c) {
+        case 'g': {
+            return 0;
+            break;
+        } case 'r': {
+            return 1;
+            break;
+        } case 'b': {
+            return 2;
+            break;
+        } case 'o': {
+            return 3;
+            break;
+        } case 'y': {
+            return 4;
+            break;
+        } case 'w': {
+            return 5;
+            break;
+        } default: {
+            return 1000000000;//this should be a sign that the input has a problem. Theoretically, the program shouldn't ever have to return this
+        }
+    }
+};
 
 //function corresponding to rotating left layer of cube (white facing left) clockwise
 void R() {
