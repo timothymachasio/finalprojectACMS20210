@@ -84,8 +84,9 @@ int main() {
         string userinput;//this string holds the value of user-friendly input (a string)
         cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<endl;
         cout<<endl;
-        cout<<"Hold the cube such that: "<<endl;
-        //function to convert face number into directions will be invoked here for user-friendliness
+        //FUNCTION GIVING DIRECTIONS ON HOW THE USER SHOULD PROCEED (DEPENDING ON WHAT THE VALUE OF I IS) WILL BE ENTERED HERE.
+        //Example (For face with red center-> corresponding to i=1):
+        //Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last.
         cout<<"Please note that "<<endl;
         cout<<"g - Green"<<endl;
         cout<<"r - Red"<<endl;
@@ -94,7 +95,7 @@ int main() {
         cout<<"y - Yellow"<<endl;
         cout<<"w - White"<<endl;
         cout<<endl;
-        cout<<"Enter everything in lowercase"<<endl;
+        cout<<"Enter everything in lowercase. No spaces."<<endl;
         cin>>userinput;
         
         
@@ -257,6 +258,7 @@ int main() {
      }
      
      */
+    cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<endl;
     
     return 0;
 }
