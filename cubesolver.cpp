@@ -118,6 +118,7 @@ int main() {
         }
         
         int facevalues = String2Number(userinput);//this integer holds an integer value that corresponds to the string a user inputs
+        cout<<"You entered: "<<userinput<<endl;
         cout<<"Your input converts to "<<String2Number(userinput)<<endl;
         
         //converts series of numbers into discrete separate numbers in array. Last digit is input first (In line with directions given to the user on how to enter the state of the cube.
@@ -130,6 +131,18 @@ int main() {
     }
     
     
+    //checks to see whether cube is solved. If it is, does nothing. If it isn't, starts searching for solution.
+    if (IsSolved())
+    {
+        
+        cout<<"The cube is already solved. There's no work for me here."<<endl;
+        
+    }
+    
+    else
+        
+    {//THIS IS THE 'MEAT' OF THE PROGRAM
+        
     cout<<"State of cube before algorithm: "<<endl;
     
     for (int i=0;i<6;i++) {
@@ -206,8 +219,7 @@ int main() {
         }
         
     }
-    
-    
+    }
     //TEST: How many times the algorithm will run before the cube is solved
     /*
      
@@ -295,7 +307,7 @@ bool IsCorrectFace (string userinput, int face) {
 };
 //this function converts a user-input string into an integer which the program operates on
 int String2Number (string s) {
-    int result;
+    int result(0);
     for (int i=8;i>=0;i--) {
         result+=((Letter2Digit(s.at(i)))*(pow(10,(8-i))));//multiplies the corresponding value of each digit with corresponding place to find place value, then adds everything together. Starts with last digit, adds 10*next digit, etc.
     }
