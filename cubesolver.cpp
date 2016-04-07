@@ -61,20 +61,20 @@ bool IsSolved(void);
 //contains values for a solved cube
 int solvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
 
-//contains values for an unsolved cube (what the user inputs)
+//contains values for an unsolved cube (what the user inputs). These test values are overwritten by user input. They correspond to a state of the cube in which face 1 is bgbogrbgb, face 2 is wwywrywyy, face 3 is gbgrbogbg, face 4 is wwywoywyy, face 5 is rboryorgo, and face 6 is obrowrogr
 int unsolvedmatrix[6][9] = {{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
 
 //holds new values for the unsolved matrix as moves are performed on the cube.
 int workingmatrix[6][9];
 
-//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above
+//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above. These test values are overwritten by user input.
 int originalmatrix[6][9] ={{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
 
 int main() {
     
     vector<int> solution;//keeps correctly ordered sequence of moves required to solve the cube
     
-    ifstream fin("moves.dat");
+    ifstream fin("moves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
     
     //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER AND VALIDATES IT
     
