@@ -2,6 +2,8 @@
 // Team Members: Timothy Machasio, Nick Courtney and Colin Humble
 // Instructor: Daniel Brake
 
+//This programs finds the most efficient solution to any given state of the Rubik's cube. It may run for a while, but the solution it finds is guaranteed to have the least number of moves (tradeoffs, anyone? :))
+//To see magic, enter a cube in which face 1 is bgbogrbgb, face 2 is wwywrywyy, face 3 is gbgrbogbg, face 4 is wwywoywyy, face 5 is rboryorgo, and face 6 is obrowrogr.
 
 #include <iostream>
 #include <fstream>
@@ -20,7 +22,9 @@ int Letter2Digit (char c);
 //This function checks to ensure the user is entering the right face of the cube
 bool IsCorrectFace (string userinput, int face);
 //this function converts the string a user inputs into an integer which the program works with
-int String2Number (string s);
+//int String2Number (string s);
+
+
 //function turns the right face of the cube clockwise
 void R(void);
 //function turns the left face of the cube clockwise
@@ -47,6 +51,8 @@ void U2(void);
 void D2(void);
 void F2(void);
 void B2(void);
+
+
 //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
 void numbertomove(int x);
 //function prints the current state of the cube
@@ -58,17 +64,20 @@ void algorithm(void);
 //function checks whether cube is solved
 bool IsSolved(void);
 
-//contains values for a solved cube
-int solvedmatrix[6][9] = {{0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1},{2,2,2,2,2,2,2,2,2},{3,3,3,3,3,3,3,3,3},{4,4,4,4,4,4,4,4,4},{5,5,5,5,5,5,5,5,5}};
 
-//contains values for an unsolved cube (what the user inputs). These test values are overwritten by user input. They correspond to a state of the cube in which face 1 is bgbogrbgb, face 2 is wwywrywyy, face 3 is gbgrbogbg, face 4 is wwywoywyy, face 5 is rboryorgo, and face 6 is obrowrogr
-int unsolvedmatrix[6][9] = {{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
+
+
+//contains values for a solved cube
+char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
+
+//keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
+char unsolvedmatrix[6][9];
 
 //holds new values for the unsolved matrix as moves are performed on the cube.
-int workingmatrix[6][9];
+char workingmatrix[6][9];
 
-//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above. These test values are overwritten by user input.
-int originalmatrix[6][9] ={{2,0,2,3,0,1,2,0,2},{5,5,4,5,1,4,5,4,4},{0,2,0,1,2,3,0,2,0},{5,5,4,5,3,4,5,4,4},{1,2,3,1,4,3,1,0,3},{3,2,1,3,5,1,3,0,1}};
+//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
+char originalmatrix[6][9];
 
 int main() {
     
@@ -118,16 +127,22 @@ int main() {
             cin>>userinput;//overwrites the invalid values entered
         }
         
-        int facevalues = String2Number(userinput);//this integer holds an integer value that corresponds to the string a user inputs
+        //step 4 of input validation: ask user to confirm their input
+        char valid;
         cout<<"You entered: "<<userinput<<endl;
-        cout<<"Your input converts to "<<String2Number(userinput)<<endl;
+        cout<<"Is this correct? \nIf it isn't, the program may run for a very long time!"<<endl;
+        cout<<"Please enter n if not, or y (or anything else) if yes. Note that 'n' must be lowercase"<<endl;
+        cin>>valid;
+        while (valid=='n') {
+            cout<<"Please enter the color values for the face with a "<<Number2Color(i)<<" center cubie again:"<<endl;
+            cin>>userinput;//overwrites wrong input
+        }
         
-        //converts series of numbers into discrete separate numbers in array. Last digit is input first (In line with directions given to the user on how to enter the state of the cube.
+        //converts user input into a multidimensional array
         
-        for (int j=8; j>=0; j--) {
-            unsolvedmatrix[i][j] = facevalues % 10 ;
-            originalmatrix[i][j] = facevalues % 10 ;
-            facevalues /= 10;
+        for (int j=0; j<9; j++) {
+            unsolvedmatrix[i][j] = userinput.at(j);//this value will change as the functions run
+            originalmatrix[i][j] = userinput.at(j);//this value will not
         }
     }
     
@@ -258,7 +273,12 @@ int main() {
      }
      
      */
-    cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<endl;
+    if (IsSolved()) {
+        cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<endl;
+    } else {
+        cout<<"A solution was not found. The state of the cube you entered must have been invalid - otherwise a solution would have been found."<<endl;
+    }
+    
     
     return 0;
 }
@@ -307,7 +327,8 @@ bool IsCorrectFace (string userinput, int face) {
         return false;
     }
 };
-//this function converts a user-input string into an integer which the program operates on
+//this function converts a user-input string into an integer which the program operates on. LOOKS LIKE WE MAY NOT NEED IT AFTER ALL.
+/*
 int String2Number (string s) {
     int result(0);
     for (int i=8;i>=0;i--) {
@@ -316,7 +337,10 @@ int String2Number (string s) {
     
     return result;
 };
-//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
+ */
+
+//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input.
+
 int Letter2Digit (char c) {
     
     switch (c) {
