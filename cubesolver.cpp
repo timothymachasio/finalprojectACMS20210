@@ -13,6 +13,8 @@
 #include <cmath>
 
 using namespace std;
+//this function directs the program user on how to input the state of the cube
+void Directions(int i);
 //this function checks whether everything the user inputs is in the allowed alphabetical form
 bool AllAllowedCharacters(string s);
 //this function converts a single digit (color code) and returns its corresponding color
@@ -93,10 +95,12 @@ int main() {
         string userinput;//this string holds the value of user-friendly input (a string)
         cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<endl;
         cout<<endl;
-        //FUNCTION GIVING DIRECTIONS ON HOW THE USER SHOULD PROCEED (DEPENDING ON WHAT THE VALUE OF I IS) WILL BE ENTERED HERE.
-        //Example (For face with red center-> corresponding to i=1):
+        Directions(i);//gives user directions on how to enter the state of the cube depending on which face is being asked for. Cool, right?
+        //Example (For face with red center-> corresponding to i=1). The function will print:
         //Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last.
-        cout<<"Please note that "<<endl;
+        cout<<endl;
+        cout<<"Please note that:"<<endl;
+        cout<<endl;
         cout<<"g - Green"<<endl;
         cout<<"r - Red"<<endl;
         cout<<"b - Blue"<<endl;
@@ -282,6 +286,34 @@ int main() {
     
     return 0;
 }
+
+//This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
+void Directions(int i) {
+    switch (i) {
+        case 0: {//corresponds to face with green center
+            cout<<"Hold the cube such that the orange center is facing down and the green center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } case 1: {//corresponds to face with red center
+            cout<<"Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } case 2: {//corresponds to face with blue center
+            cout<<"Now hold the cube such that the red center is facing down and the blue center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } case 3: {//corresponds to face with orange center
+            cout<<"Now hold the cube such that the blue center is facing down and the orange center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } case 4: {//corresponds to face with yellow center
+            cout<<"Now hold the cube such that the green center is facing down and the yellow center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } case 5: {//corresponds to face with white center
+            cout<<"Now hold the cube such that the green center is facing down and the white center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            break;
+        } default: {//theoretically this should never print because the counter for the loop in main() only runs from 0 to 5. This function accepts i (the loop counter) as its parameter
+            cout<<"WHAAAAAAAAAAAAAAAAAAAAAT?"<<endl;
+            break;
+        }
+    }
+};
 
 //this function checks whether everything the user inputs is in the allowed alphabetical form
 bool AllAllowedCharacters(string s) {
