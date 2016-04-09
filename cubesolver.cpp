@@ -12,6 +12,7 @@
 #include <string>
 #include <cmath>
 
+
 using namespace std;
 //this function directs the program user on how to input the state of the cube
 void Directions(int i);
@@ -85,7 +86,7 @@ int main() {
     
     vector<int> solution;//keeps correctly ordered sequence of moves required to solve the cube
     
-    ifstream fin("moves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
+    ifstream fin;
     
     //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER AND VALIDATES IT
     
@@ -162,6 +163,7 @@ int main() {
     else
         
     {//THIS IS THE 'MEAT' OF THE PROGRAM
+        fin.open("moves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
         
     cout<<"State of cube before algorithm: "<<endl;
     
@@ -239,6 +241,7 @@ int main() {
         }
         
     }
+        fin.close();//close input file stream
     }
     //TEST: How many times the algorithm will run before the cube is solved
     /*
