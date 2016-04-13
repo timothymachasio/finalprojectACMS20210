@@ -57,16 +57,17 @@ void B2(void);
 
 
 //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
-void numbertomove(int x);
+void numbertomove(char x);
 //function prints the current state of the cube
 void printcube(void);
 //function takes in number representing move and prints out the corresponding move
-void printmove(int x);
+void printmove(char x);
 //function performs a set of moves defined in the void algorithm() function
 void algorithm(void);
 //function checks whether cube is solved
 bool IsSolved(void);
-
+//function performs a set of moves on the cube
+void test(string s);
 
 
 
@@ -88,8 +89,7 @@ int main() {
     
     ifstream fin;
     
-    //THIS IS A FUNCTIONAL PIECE OF CODE THAT RECEIVES INPUT FROM THE USER AND VALIDATES IT
-    
+    //1. RECEIVE INPUT FROM USER AND VALIDATE IT
     
     for (int i=0; i<6; i++) {
         
@@ -149,10 +149,14 @@ int main() {
             unsolvedmatrix[i][j] = userinput.at(j);//this value will change as the functions run
             originalmatrix[i][j] = userinput.at(j);//this value will not
         }
+        //just to make the console output neat
+        cout<<endl;
+        cout<<endl;
+        cout<<endl;
     }
     
+    //2. CHECK WHETHER CUBE IS SOLVED. IF NOT, SOLVE IT AND RETURN SOLUTION TO USER.
     
-    //checks to see whether cube is solved. If it is, does nothing. If it isn't, starts searching for solution.
     if (IsSolved())
     {
         
@@ -165,121 +169,65 @@ int main() {
     {//THIS IS THE 'MEAT' OF THE PROGRAM
         fin.open("moves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
         
-    cout<<"State of cube before algorithm: "<<endl;
-    
-    for (int i=0;i<6;i++) {
-        for (int j=0;j<9;j++) {
-            cout<<unsolvedmatrix[i][j];
-        }
+        cout<<"State of cube before algorithm: "<<endl;
+        
+        printcube();
+        
+        cout<<"The state of the cube is as follows:"<<endl;
         cout<<endl;
-    }
-    
-    
-    cout<<"The state of the cube is as follows:"<<endl;
-    cout<<endl;
-    printcube();
-    cout<<endl;
-    cout<<"The cube is ";
-    if (!IsSolved()) {
-        cout<<"not";
-    }
-    cout<<" solved."<<endl;
-    
-    
-    //'pushes' each line in the text file (which represents a combination of moves) in an attempt to solve the cube
-    int moves;//variable stores the set of moves 'pushed' to it by the input stream
-    int movesbuffer;//keeps the value of the original set of moves ('moves') above is manipulated by the 'for' loop below
-    
-    //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long).
-    //IT IS A BASIC DEPTH-FIRST SEARCH. THE SEARCH TREE HAS A DEPTH OF 6, AND A BRANCHING FACTOR OF 6
-    //THE FINAL IMPLEMENTATION OF OUR PROJECT WILL ATTEMPT TO UTILIZE AN ITERATIVE DEEPENING DEPTH-FIRST SEARCH
-    
-    for (int i=0;i<46656;i++) {
-        fin>>moves;//stores the current set of moves to be executed
-        
-        movesbuffer=moves;//captures a copy of the original value of 'moves' since the value of 'moves' will change as the 'for' loop below runs.
-        for (int i=0; i<6; i++) {
-            //NOTE::THIS WILL RUN THE MOVES IN REVERSE (from the last digit to the first digit)
-            numbertomove(moves % 10);
-            moves /= 10;
-        }
-        
+        printcube();
         cout<<endl;
         
-        if (IsSolved()) {
-            cout<<"The cube has been solved! See for yourself: "<<endl;
-            printcube();//print the cube then exit
-            cout<<"The moves used to solve the cube were "<<endl;
+        
+        //'pushes' each line in the text file (which represents a combination of moves) in an attempt to solve the cube
+        
+        string moves;//variable stores the set of moves 'pushed' to it by the input stream
+        
+        //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long).
+        //IT IS A BASIC DEPTH-FIRST SEARCH. THE SEARCH TREE HAS A DEPTH OF 6, AND A BRANCHING FACTOR OF 6
+        //THE FINAL IMPLEMENTATION OF OUR PROJECT WILL ATTEMPT TO UTILIZE AN ITERATIVE DEEPENING DEPTH-FIRST SEARCH
+        
+        for (int i=0;i<46656;i++) {
             
-            //loop stores discrete moves in vector and reverses order in which moves were executed (to match the order of the input sequence of numbers)
-            for (int i=0;i<6;i++) {
-                solution.push_back(movesbuffer % 10);
-                movesbuffer /= 10;
-            }
+            fin>>moves;//stores the current set of moves to be executed
             
-            //loops prints out each move in the correct order of implementation (from vector)
-            for (int i=0;i<6;i++) {
-                printmove(solution[i]);
-                cout<<endl;
-            }
-            break;
+            cout<<"Testing "<<moves<<endl;//ONLY FOR DEBUGGING PURPOSES
             
+            test(moves);//tests the series of moves passed into the function
             
-        } else {
-            
-            
-            cout<<"The cube has not yet been solved"<<endl;
-            cout<<"Cube before reassignment"<<endl;
-            printcube();
-            for (int i=0;i<6;i++) {
-                for (int j=0;j<9;j++) {
-                    unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of originalmatrix to unsolvedmatrix before trying again
+            if (IsSolved()) {
+                cout<<"The cube has been solved! See for yourself: "<<endl;
+                printcube();//print the cube then exit
+                cout<<"The moves used to solve the cube were "<<endl;
+                
+                //loop prints out each move used to solve the cube in correct order of implentation
+                for (int i=0;i<6;i++) {
+                    printmove(moves.at(i));
+                    cout<<endl;
                 }
+                break;
+                
+                
+            } else {
+                
+                
+                cout<<"The cube has not yet been solved"<<endl;
+                cout<<"Cube before reassignment"<<endl;
+                printcube();
+                for (int i=0;i<6;i++) {
+                    for (int j=0;j<9;j++) {
+                        unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of originalmatrix to unsolvedmatrix before trying again
+                    }
+                }
+                cout<<"Cube after reassignment"<<endl;
+                printcube();
             }
-            cout<<"Cube after reassignment"<<endl;
-            printcube();
+            
         }
-        
-    }
         fin.close();//close input file stream
     }
-    //TEST: How many times the algorithm will run before the cube is solved
-    /*
-     
-     int reps;
-     
-     while (!IsSolved()) {
-     algorithm();
-     reps++;
-     }
-     cout<<"The cube will be solved after the algorithm is repeated "<<reps+1<<" times."<<endl;
-     
-     */
     
-    //TEST: Turning sequence of numbers into moves for implementation;
     
-    /*
-     
-     int x[4]={1,2,3,4};
-     
-     for (int i=0;i<4;i++) {
-     numbertomove(x[i]);
-     cout<<"The state of the cube after move "<<i<<" is "<<endl;
-     for (int i=0;i<6;i++) {
-     for (int j=0;j<9;j++) {
-     cout<<unsolvedmatrix[i][j];
-     }
-     cout<<endl;
-     }
-     cout<<"The cube is ";
-     if (!IsSolved()) {
-     cout<<"not";
-     }
-     cout<<" solved."<<endl;
-     
-     }
-     
-     */
     if (IsSolved()) {
         cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<endl;
     } else {
@@ -364,14 +312,14 @@ bool IsCorrectFace (string userinput, int face) {
 };
 //this function converts a user-input string into an integer which the program operates on. LOOKS LIKE WE MAY NOT NEED IT AFTER ALL.
 /*
-int String2Number (string s) {
-    int result(0);
-    for (int i=8;i>=0;i--) {
-        result+=((Letter2Digit(s.at(i)))*(pow(10,(8-i))));//multiplies the corresponding value of each digit with corresponding place to find place value, then adds everything together. Starts with last digit, adds 10*next digit, etc.
-    }
-    
-    return result;
-};
+ int String2Number (string s) {
+ int result(0);
+ for (int i=8;i>=0;i--) {
+ result+=((Letter2Digit(s.at(i)))*(pow(10,(8-i))));//multiplies the corresponding value of each digit with corresponding place to find place value, then adds everything together. Starts with last digit, adds 10*next digit, etc.
+ }
+ 
+ return result;
+ };
  */
 
 //this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input.
@@ -866,25 +814,25 @@ void algorithm() {
 };
 
 //function to convert series of moves (in number form) to functions
-void numbertomove(int x) {
+void numbertomove(char x) {
     
     switch (x) {
-        case 1: {
+        case '1': {
             L();
             break;
-        } case 2: {
+        } case '2': {
             R();
             break;
-        } case 3: {
+        } case '3': {
             U();
             break;
-        } case 4: {
+        } case '4': {
             D();
             break;
-        } case 5: {
+        } case '5': {
             F();
             break;
-        } case 6: {
+        } case '6': {
             B();
             break;
         } default: {
@@ -894,25 +842,25 @@ void numbertomove(int x) {
     
 };
 
-void printmove(int x) {
+void printmove(char x) {
     
     switch(x) {
-        case 1: {
+        case '1': {
             cout<<" L "<<endl;
             break;
-        } case 2 : {
+        } case '2' : {
             cout<<" R "<<endl;
             break;
-        } case 3 : {
+        } case '3' : {
             cout<<" U "<<endl;
             break;
-        } case 4 : {
+        } case '4' : {
             cout<<" D "<<endl;
             break;
-        } case 5 : {
+        } case '5' : {
             cout<<" F "<<endl;
             break;
-        } case 6 : {
+        } case '6' : {
             cout<<" B "<<endl;
             break;
         } default : {
@@ -928,6 +876,12 @@ void printcube() {
             cout<<unsolvedmatrix[i][j];
         }
         cout<<endl;
+    }
+};
+
+void test(string s) {
+    for (int i=0;i<s.size();i++) {
+        numbertomove(s.at(i));
     }
 };
 
