@@ -14,6 +14,7 @@
 
 
 using namespace std;
+
 //this function directs the program user on how to input the state of the cube
 void Directions(int i);
 //this function checks whether everything the user inputs is in the allowed alphabetical form
@@ -69,7 +70,8 @@ bool IsSolved(void);
 //function performs a set of moves on the cube
 void test(string s);
 
-
+//this function runs an iterative deepening depth first search starting from the the depth specified in its parameter
+void Search(int startdepth);
 
 //contains values for a solved cube
 char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
@@ -166,8 +168,11 @@ int main() {
     
     else
         
-    {//THIS IS THE 'MEAT' OF THE PROGRAM
-        fin.open("moves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
+    {
+        /*
+         
+        //THIS IS THE 'MEAT' OF THE PROGRAM
+        fin.open("charmoves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
         
         cout<<"State of cube before algorithm: "<<endl;
         
@@ -187,7 +192,7 @@ int main() {
         //IT IS A BASIC DEPTH-FIRST SEARCH. THE SEARCH TREE HAS A DEPTH OF 6, AND A BRANCHING FACTOR OF 6
         //THE FINAL IMPLEMENTATION OF OUR PROJECT WILL ATTEMPT TO UTILIZE AN ITERATIVE DEEPENING DEPTH-FIRST SEARCH
         
-        for (int i=0;i<46656;i++) {
+        for (int i=0;i<2985984;i++) {
             
             fin>>moves;//stores the current set of moves to be executed
             
@@ -225,6 +230,13 @@ int main() {
             
         }
         fin.close();//close input file stream
+         
+         */
+        
+        
+        //this is a lame attempt at an iterative deepening depth-first search (beginner style). Note how we're starting at depth 1;
+        
+        Search(4);
     }
     
     
@@ -817,26 +829,44 @@ void algorithm() {
 void numbertomove(char x) {
     
     switch (x) {
-        case '1': {
+        case 'a': {
             L();
             break;
-        } case '2': {
+        } case 'b': {
             R();
             break;
-        } case '3': {
+        } case 'c': {
             U();
             break;
-        } case '4': {
+        } case 'd': {
             D();
             break;
-        } case '5': {
+        } case 'e': {
             F();
             break;
-        } case '6': {
+        } case 'f': {
             B();
             break;
+        } case 'g': {
+            L2();
+            break;
+        } case 'h': {
+            R2();
+            break;
+        } case 'i': {
+            U2();
+            break;
+        } case 'j': {
+            D2();
+            break;
+        } case 'k': {
+            F2();
+            break;
+        } case 'l': {
+            B2();
+            break;
         } default: {
-            cout<<"This should never print because all numbers used will be between 1 and 6"<<endl;
+            cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<endl;
         }
     }
     
@@ -845,30 +875,49 @@ void numbertomove(char x) {
 void printmove(char x) {
     
     switch(x) {
-        case '1': {
+        case 'a': {
             cout<<" L "<<endl;
             break;
-        } case '2' : {
+        } case 'b' : {
             cout<<" R "<<endl;
             break;
-        } case '3' : {
+        } case 'c' : {
             cout<<" U "<<endl;
             break;
-        } case '4' : {
+        } case 'd' : {
             cout<<" D "<<endl;
             break;
-        } case '5' : {
+        } case 'e' : {
             cout<<" F "<<endl;
             break;
-        } case '6' : {
+        } case 'f' : {
             cout<<" B "<<endl;
             break;
-        } default : {
-            cout<<"This should never print because all numbers used will be betweeen 1 and 6"<<endl;
+        } case 'g' : {
+            cout<<" L2 "<<endl;
+            break;
+        } case 'h' : {
+            cout<<" R2 "<<endl;
+            break;
+        } case 'i' : {
+            cout<<" U2 "<<endl;
+            break;
+        } case 'j' : {
+            cout<<" D2 "<<endl;
+            break;
+        } case 'k' : {
+            cout<<" F2 "<<endl;
+            break;
+        } case 'l' : {
+            cout<<" B2 "<<endl;
+            break;
+        }default : {
+            cout<<"If this prints, there's a problem where the 'printmove' function is called"<<endl;
         }
     }
 }
 
+//this function prints out the current state of the cube
 void printcube() {
     
     for (int i=0;i<6;i++) {
@@ -879,9 +928,1127 @@ void printcube() {
     }
 };
 
+//this function performs a set of moves on the cube (the string it accepts is an encoded permutation of moves. See the 'numbertomove' function definition)
 void test(string s) {
     for (int i=0;i<s.size();i++) {
         numbertomove(s.at(i));
     }
 };
+
+void Search(int startdepth) {
+    
+    bool found = false;
+    int depth = startdepth;
+    
+    while (depth<21&&(found==false)) {
+        if (depth==1) {
+            for (char a='a';a<'a'+12;a++) {
+                numbertomove(a);
+                if (IsSolved()) {
+                    cout<<"Solved! Steps for solving: "<<endl;
+                    printmove(a);
+                    found=true;//guarantees that loop will stop running when solution is found
+                } else {
+                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                        for (int j=0;j<9;j++) {
+                            unsolvedmatrix[i][j]=originalmatrix[i][j];
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;//You know, just to make sure the user knows what's going on.
+            Search(depth+1);//RECURSION. See for every other series of nested loops below. Will only run if solution is not found.
+        } else if (depth==2) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    numbertomove(a);
+                    numbertomove(b);
+                    if (IsSolved()) {
+                        cout<<"Solved! Steps for solving: "<<endl;
+                        printmove(a);
+                        printmove(b);
+                        found=true;
+                    }else {
+                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                            for (int j=0;j<9;j++) {
+                                unsolvedmatrix[i][j]=originalmatrix[i][j];
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==3) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        numbertomove(a);
+                        numbertomove(b);
+                        numbertomove(c);
+                        
+                        if (IsSolved()) {
+                            cout<<"Solved! Steps for solving: "<<endl;
+                            printmove(a);
+                            printmove(b);
+                            printmove(c);
+                            found=true;
+                        } else {
+                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                for (int j=0;j<9;j++) {
+                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==4) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            numbertomove(a);
+                            numbertomove(b);
+                            numbertomove(c);
+                            numbertomove(d);
+                            if (IsSolved()) {
+                                cout<<"Solved! Steps for solving: "<<endl;
+                                printmove(a);
+                                printmove(b);
+                                printmove(c);
+                                printmove(d);
+                                found=true;
+                            } else {
+                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                    for (int j=0;j<9;j++) {
+                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==5) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                numbertomove(a);
+                                numbertomove(b);
+                                numbertomove(c);
+                                numbertomove(d);
+                                numbertomove(e);
+                                if (IsSolved()) {
+                                    cout<<"Solved! Steps for solving: "<<endl;
+                                    printmove(a);
+                                    printmove(b);
+                                    printmove(c);
+                                    printmove(d);
+                                    printmove(e);
+                                    found=true;
+                                } else {
+                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                        for (int j=0;j<9;j++) {
+                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==6) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    numbertomove(a);
+                                    numbertomove(b);
+                                    numbertomove(c);
+                                    numbertomove(d);
+                                    numbertomove(e);
+                                    numbertomove(f);
+                                    if (IsSolved()) {
+                                        cout<<"Solved! Steps for solving: "<<endl;
+                                        printmove(a);
+                                        printmove(b);
+                                        printmove(c);
+                                        printmove(d);
+                                        printmove(e);
+                                        printmove(f);
+                                        found=true;
+                                    } else {
+                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                            for (int j=0;j<9;j++) {
+                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                            }
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==7) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        numbertomove(a);
+                                        numbertomove(b);
+                                        numbertomove(c);
+                                        numbertomove(d);
+                                        numbertomove(e);
+                                        numbertomove(f);
+                                        numbertomove(g);
+                                        if (IsSolved()) {
+                                            cout<<"Solved! Steps for solving: "<<endl;
+                                            printmove(a);
+                                            printmove(b);
+                                            printmove(c);
+                                            printmove(d);
+                                            printmove(e);
+                                            printmove(f);
+                                            printmove(g);
+                                            found=true;
+                                        } else {
+                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                for (int j=0;j<9;j++) {
+                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==8) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            numbertomove(a);
+                                            numbertomove(b);
+                                            numbertomove(c);
+                                            numbertomove(d);
+                                            numbertomove(e);
+                                            numbertomove(f);
+                                            numbertomove(g);
+                                            numbertomove(h);
+                                            if (IsSolved()) {
+                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                printmove(a);
+                                                printmove(b);
+                                                printmove(c);
+                                                printmove(d);
+                                                printmove(e);
+                                                printmove(f);
+                                                printmove(g);
+                                                printmove(h);
+                                                found=true;
+                                            } else {
+                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                    for (int j=0;j<9;j++) {
+                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==9) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<='a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                numbertomove(a);
+                                                numbertomove(b);
+                                                numbertomove(c);
+                                                numbertomove(d);
+                                                numbertomove(e);
+                                                numbertomove(f);
+                                                numbertomove(g);
+                                                numbertomove(h);
+                                                numbertomove(i);
+                                                if (IsSolved()) {
+                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                    printmove(a);
+                                                    printmove(b);
+                                                    printmove(c);
+                                                    printmove(d);
+                                                    printmove(e);
+                                                    printmove(f);
+                                                    printmove(g);
+                                                    printmove(h);
+                                                    printmove(i);
+                                                    found=true;
+                                                } else {
+                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                        for (int j=0;j<9;j++) {
+                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==10) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    numbertomove(a);
+                                                    numbertomove(b);
+                                                    numbertomove(c);
+                                                    numbertomove(d);
+                                                    numbertomove(e);
+                                                    numbertomove(f);
+                                                    numbertomove(g);
+                                                    numbertomove(h);
+                                                    numbertomove(i);
+                                                    numbertomove(j);
+                                                    if (IsSolved()) {
+                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                        printmove(a);
+                                                        printmove(b);
+                                                        printmove(c);
+                                                        printmove(d);
+                                                        printmove(e);
+                                                        printmove(f);
+                                                        printmove(g);
+                                                        printmove(h);
+                                                        printmove(i);
+                                                        printmove(j);
+                                                        found=true;
+                                                    }  else {
+                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                            for (int j=0;j<9;j++) {
+                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                            }
+                                                        }
+                                                    }                                               }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==11) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        numbertomove(a);
+                                                        numbertomove(b);
+                                                        numbertomove(c);
+                                                        numbertomove(d);
+                                                        numbertomove(e);
+                                                        numbertomove(f);
+                                                        numbertomove(g);
+                                                        numbertomove(h);
+                                                        numbertomove(i);
+                                                        numbertomove(j);
+                                                        numbertomove(k);
+                                                        if (IsSolved()) {
+                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                            printmove(a);
+                                                            printmove(b);
+                                                            printmove(c);
+                                                            printmove(d);
+                                                            printmove(e);
+                                                            printmove(f);
+                                                            printmove(g);
+                                                            printmove(h);
+                                                            printmove(i);
+                                                            printmove(j);
+                                                            printmove(k);
+                                                            found=true;
+                                                        } else {
+                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                for (int j=0;j<9;j++) {
+                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==12) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            numbertomove(a);
+                                                            numbertomove(b);
+                                                            numbertomove(c);
+                                                            numbertomove(d);
+                                                            numbertomove(e);
+                                                            numbertomove(f);
+                                                            numbertomove(g);
+                                                            numbertomove(h);
+                                                            numbertomove(i);
+                                                            numbertomove(j);
+                                                            numbertomove(k);
+                                                            numbertomove(l);
+                                                            if (IsSolved()) {
+                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                printmove(a);
+                                                                printmove(b);
+                                                                printmove(c);
+                                                                printmove(d);
+                                                                printmove(e);
+                                                                printmove(f);
+                                                                printmove(g);
+                                                                printmove(h);
+                                                                printmove(i);
+                                                                printmove(j);
+                                                                printmove(k);
+                                                                printmove(l);
+                                                                found=true;
+                                                            } else {
+                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                    for (int j=0;j<9;j++) {
+                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                    }
+                                                                }
+                                                            }
+                                                            
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==13) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                numbertomove(a);
+                                                                numbertomove(b);
+                                                                numbertomove(c);
+                                                                numbertomove(d);
+                                                                numbertomove(e);
+                                                                numbertomove(f);
+                                                                numbertomove(g);
+                                                                numbertomove(h);
+                                                                numbertomove(i);
+                                                                numbertomove(j);
+                                                                numbertomove(k);
+                                                                numbertomove(l);
+                                                                numbertomove(m);
+                                                                if (IsSolved()) {
+                                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                                    printmove(a);
+                                                                    printmove(b);
+                                                                    printmove(c);
+                                                                    printmove(d);
+                                                                    printmove(e);
+                                                                    printmove(f);
+                                                                    printmove(g);
+                                                                    printmove(h);
+                                                                    printmove(i);
+                                                                    printmove(j);
+                                                                    printmove(k);
+                                                                    printmove(l);
+                                                                    printmove(m);
+                                                                    found=true;
+                                                                } else {
+                                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                        for (int j=0;j<9;j++) {
+                                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==14) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    numbertomove(a);
+                                                                    numbertomove(b);
+                                                                    numbertomove(c);
+                                                                    numbertomove(d);
+                                                                    numbertomove(e);
+                                                                    numbertomove(f);
+                                                                    numbertomove(g);
+                                                                    numbertomove(h);
+                                                                    numbertomove(i);
+                                                                    numbertomove(j);
+                                                                    numbertomove(k);
+                                                                    numbertomove(l);
+                                                                    numbertomove(m);
+                                                                    numbertomove(n);
+                                                                    if (IsSolved()) {
+                                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                                        printmove(a);
+                                                                        printmove(b);
+                                                                        printmove(c);
+                                                                        printmove(d);
+                                                                        printmove(e);
+                                                                        printmove(f);
+                                                                        printmove(g);
+                                                                        printmove(h);
+                                                                        printmove(i);
+                                                                        printmove(j);
+                                                                        printmove(k);
+                                                                        printmove(l);
+                                                                        printmove(m);
+                                                                        printmove(n);
+                                                                        found=true;
+                                                                    } else {
+                                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                            for (int j=0;j<9;j++) {
+                                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==15) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        numbertomove(a);
+                                                                        numbertomove(b);
+                                                                        numbertomove(c);
+                                                                        numbertomove(d);
+                                                                        numbertomove(e);
+                                                                        numbertomove(f);
+                                                                        numbertomove(g);
+                                                                        numbertomove(h);
+                                                                        numbertomove(i);
+                                                                        numbertomove(j);
+                                                                        numbertomove(k);
+                                                                        numbertomove(l);
+                                                                        numbertomove(m);
+                                                                        numbertomove(n);
+                                                                        numbertomove(o);
+                                                                        if (IsSolved()) {
+                                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                                            printmove(a);
+                                                                            printmove(b);
+                                                                            printmove(c);
+                                                                            printmove(d);
+                                                                            printmove(e);
+                                                                            printmove(f);
+                                                                            printmove(g);
+                                                                            printmove(h);
+                                                                            printmove(i);
+                                                                            printmove(j);
+                                                                            printmove(k);
+                                                                            printmove(l);
+                                                                            printmove(m);
+                                                                            printmove(n);
+                                                                            printmove(o);
+                                                                            found=true;
+                                                                        } else {
+                                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                for (int j=0;j<9;j++) {
+                                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==16) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        for (char p='a';p<'a'+12;p++) {
+                                                                            numbertomove(a);
+                                                                            numbertomove(b);
+                                                                            numbertomove(c);
+                                                                            numbertomove(d);
+                                                                            numbertomove(e);
+                                                                            numbertomove(f);
+                                                                            numbertomove(g);
+                                                                            numbertomove(h);
+                                                                            numbertomove(i);
+                                                                            numbertomove(j);
+                                                                            numbertomove(k);
+                                                                            numbertomove(l);
+                                                                            numbertomove(m);
+                                                                            numbertomove(n);
+                                                                            numbertomove(o);
+                                                                            numbertomove(p);
+                                                                            if (IsSolved()) {
+                                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                                printmove(a);
+                                                                                printmove(b);
+                                                                                printmove(c);
+                                                                                printmove(d);
+                                                                                printmove(e);
+                                                                                printmove(f);
+                                                                                printmove(g);
+                                                                                printmove(h);
+                                                                                printmove(i);
+                                                                                printmove(j);
+                                                                                printmove(k);
+                                                                                printmove(l);
+                                                                                printmove(m);
+                                                                                printmove(n);
+                                                                                printmove(o);
+                                                                                printmove(p);
+                                                                                found=true;
+                                                                            } else {
+                                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                    for (int j=0;j<9;j++) {
+                                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==17) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        for (char p='a';p<'a'+12;p++) {
+                                                                            for (char q='a';q<'a'+12;q++) {
+                                                                                numbertomove(a);
+                                                                                numbertomove(b);
+                                                                                numbertomove(c);
+                                                                                numbertomove(d);
+                                                                                numbertomove(e);
+                                                                                numbertomove(f);
+                                                                                numbertomove(g);
+                                                                                numbertomove(h);
+                                                                                numbertomove(i);
+                                                                                numbertomove(j);
+                                                                                numbertomove(k);
+                                                                                numbertomove(l);
+                                                                                numbertomove(m);
+                                                                                numbertomove(n);
+                                                                                numbertomove(o);
+                                                                                numbertomove(p);
+                                                                                numbertomove(q);
+                                                                                if (IsSolved()) {
+                                                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                                                    printmove(a);
+                                                                                    printmove(b);
+                                                                                    printmove(c);
+                                                                                    printmove(d);
+                                                                                    printmove(e);
+                                                                                    printmove(f);
+                                                                                    printmove(g);
+                                                                                    printmove(h);
+                                                                                    printmove(i);
+                                                                                    printmove(j);
+                                                                                    printmove(k);
+                                                                                    printmove(l);
+                                                                                    printmove(m);
+                                                                                    printmove(n);
+                                                                                    printmove(o);
+                                                                                    printmove(p);
+                                                                                    printmove(q);
+                                                                                    found=true;
+                                                                                } else {
+                                                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                        for (int j=0;j<9;j++) {
+                                                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==18) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        for (char p='a';p<'a'+12;p++) {
+                                                                            for (char q='a';q<'a'+12;q++) {
+                                                                                for (char r='a';r<'a'+12;r++) {
+                                                                                    numbertomove(a);
+                                                                                    numbertomove(b);
+                                                                                    numbertomove(c);
+                                                                                    numbertomove(d);
+                                                                                    numbertomove(e);
+                                                                                    numbertomove(f);
+                                                                                    numbertomove(g);
+                                                                                    numbertomove(h);
+                                                                                    numbertomove(i);
+                                                                                    numbertomove(j);
+                                                                                    numbertomove(k);
+                                                                                    numbertomove(l);
+                                                                                    numbertomove(m);
+                                                                                    numbertomove(n);
+                                                                                    numbertomove(o);
+                                                                                    numbertomove(p);
+                                                                                    numbertomove(q);
+                                                                                    numbertomove(r);
+                                                                                    if (IsSolved()) {
+                                                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                                                        printmove(a);
+                                                                                        printmove(b);
+                                                                                        printmove(c);
+                                                                                        printmove(d);
+                                                                                        printmove(e);
+                                                                                        printmove(f);
+                                                                                        printmove(g);
+                                                                                        printmove(h);
+                                                                                        printmove(i);
+                                                                                        printmove(j);
+                                                                                        printmove(k);
+                                                                                        printmove(l);
+                                                                                        printmove(m);
+                                                                                        printmove(n);
+                                                                                        printmove(o);
+                                                                                        printmove(p);
+                                                                                        printmove(q);
+                                                                                        printmove(r);
+                                                                                        found=true;
+                                                                                    } else {
+                                                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                            for (int j=0;j<9;j++) {
+                                                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        } else if (depth==19) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        for (char p='a';p<'a'+12;p++) {
+                                                                            for (char q='a';q<'a'+12;q++) {
+                                                                                for (char r='a';r<'a'+12;r++) {
+                                                                                    for (char s='a';s<'a'+12;s++) {
+                                                                                        numbertomove(a);
+                                                                                        numbertomove(b);
+                                                                                        numbertomove(c);
+                                                                                        numbertomove(d);
+                                                                                        numbertomove(e);
+                                                                                        numbertomove(f);
+                                                                                        numbertomove(g);
+                                                                                        numbertomove(h);
+                                                                                        numbertomove(i);
+                                                                                        numbertomove(j);
+                                                                                        numbertomove(k);
+                                                                                        numbertomove(l);
+                                                                                        numbertomove(m);
+                                                                                        numbertomove(n);
+                                                                                        numbertomove(o);
+                                                                                        numbertomove(p);
+                                                                                        numbertomove(q);
+                                                                                        numbertomove(r);
+                                                                                        numbertomove(s);
+                                                                                        if (IsSolved()) {
+                                                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                                                            printmove(a);
+                                                                                            printmove(b);
+                                                                                            printmove(c);
+                                                                                            printmove(d);
+                                                                                            printmove(e);
+                                                                                            printmove(f);
+                                                                                            printmove(g);
+                                                                                            printmove(h);
+                                                                                            printmove(i);
+                                                                                            printmove(j);
+                                                                                            printmove(k);
+                                                                                            printmove(l);
+                                                                                            printmove(m);
+                                                                                            printmove(n);
+                                                                                            printmove(o);
+                                                                                            printmove(p);
+                                                                                            printmove(q);
+                                                                                            printmove(r);
+                                                                                            printmove(s);
+                                                                                            found=true;
+                                                                                        } else {
+                                                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                                for (int j=0;j<9;j++) {
+                                                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
+            Search(depth+1);
+        }else if (depth==20) {
+            for (char a='a';a<'a'+12;a++) {
+                for (char b='a';b<'a'+12;b++) {
+                    for (char c='a';c<'a'+12;c++) {
+                        for (char d='a';d<'a'+12;d++) {
+                            for (char e='a';e<'a'+12;e++) {
+                                for (char f='a';f<'a'+12;f++) {
+                                    for (char g='a';g<'a'+12;g++) {
+                                        for (char h='a';h<'a'+12;h++) {
+                                            for (char i='a';i<'a'+12;i++) {
+                                                for (char j='a';i<'a'+12;j++) {
+                                                    for (char k='a';k<'a'+12;k++) {
+                                                        for (char l='a';l<'a'+12;l++) {
+                                                            for (char m='a';m<'a'+12;m++) {
+                                                                for (char n='a';n<'a'+12;n++) {
+                                                                    for (char o='a';o<'a'+12;o++) {
+                                                                        for (char p='a';p<'a'+12;p++) {
+                                                                            for (char q='a';q<'a'+12;q++) {
+                                                                                for (char r='a';r<'a'+12;r++) {
+                                                                                    for (char s='a';s<'a'+12;s++) {
+                                                                                        for (char t='a';t<'a'+12;a++) {
+                                                                                            numbertomove(a);
+                                                                                            numbertomove(b);
+                                                                                            numbertomove(c);
+                                                                                            numbertomove(d);
+                                                                                            numbertomove(e);
+                                                                                            numbertomove(f);
+                                                                                            numbertomove(g);
+                                                                                            numbertomove(h);
+                                                                                            numbertomove(i);
+                                                                                            numbertomove(j);
+                                                                                            numbertomove(k);
+                                                                                            numbertomove(l);
+                                                                                            numbertomove(m);
+                                                                                            numbertomove(n);
+                                                                                            numbertomove(o);
+                                                                                            numbertomove(p);
+                                                                                            numbertomove(q);
+                                                                                            numbertomove(r);
+                                                                                            numbertomove(s);
+                                                                                            numbertomove(t);
+                                                                                            if (IsSolved()) {
+                                                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                                                printmove(a);
+                                                                                                printmove(b);
+                                                                                                printmove(c);
+                                                                                                printmove(d);
+                                                                                                printmove(e);
+                                                                                                printmove(f);
+                                                                                                printmove(g);
+                                                                                                printmove(h);
+                                                                                                printmove(i);
+                                                                                                printmove(j);
+                                                                                                printmove(k);
+                                                                                                printmove(l);
+                                                                                                printmove(m);
+                                                                                                printmove(n);
+                                                                                                printmove(o);
+                                                                                                printmove(p);
+                                                                                                printmove(q);
+                                                                                                printmove(r);
+                                                                                                printmove(s);
+                                                                                                printmove(t);
+                                                                                                found=true;//guarantees loop termination
+                                                                                            } else {
+                                                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
+                                                                                                    for (int j=0;j<9;j++) {
+                                                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
+    
+}
 
