@@ -33,13 +33,13 @@ class Cube {
     //holds new values for the unsolved matrix as moves are performed on the cube.
     char workingmatrix[6][9];
     
-public:
     //keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
     char unsolvedmatrix[6][9];
     
     //keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
     char originalmatrix[6][9];
     
+public:
 
     //MEMBER FUNCTIONS (Definitions are elsewhere)
     
@@ -77,12 +77,10 @@ public:
     void printcube(void);
     //function takes in number representing move and prints out the corresponding move
     void printmove(char x);
-    //function performs a set of moves defined in the void algorithm() function
-    void algorithm(void);
     //function checks whether cube is solved
     bool IsSolved(void);
-    //function performs a set of moves on the cube
-    void test(std::string s);
+    //function sets value of 'unsolvedmatrix' and originalmatrix
+    void SetMatrices(int face, std::string s);
     
     //this function runs an unintelligent Iterative Deepening Depth First Search (IDDFS) starting from the the depth specified in its parameter
     void IDDFS(int startdepth);
@@ -149,12 +147,10 @@ int main() {
             std::cin>>userinput;//overwrites wrong input
         }
         
-        //converts user input into a multidimensional array
+        //feeds values of 'userinput' into Rubix instance of Cube
         
-        for (int j=0; j<9; j++) {
-            Rubix.unsolvedmatrix[i][j] = userinput.at(j);//this value will change as the functions run
-            Rubix.originalmatrix[i][j] = userinput.at(j);//this value will not
-        }
+        Rubix.SetMatrices(i,userinput);
+        
         //just to make the console output neat
         std::cout<<std::endl;
         std::cout<<std::endl;
@@ -298,6 +294,14 @@ int Letter2Digit (char c) {
 
 //CUBE OPERATION AND NON-INPUT FUNCTIONS. These belong to the 'cube' class.
 
+
+//assigns vales to 'originalmatrix' and 'unsolvedmatrix' in 'Cube' class
+void Cube::SetMatrices(int face, std::string s) {
+    for (int j=0; j<9; j++) {
+        unsolvedmatrix[face][j] = s.at(j);//this value will change as the functions R,U,D etc. run
+        originalmatrix[face][j] = s.at(j);//this value will not change after a series of functions run, and will be reassined to 'originalmatrix' if a series of functions runs and a solution is not found
+    }
+}
 
 //function corresponding to rotating left layer of cube (white facing left) clockwise
 void Cube::R() {
@@ -822,13 +826,6 @@ void Cube::printcube() {
     }
 };
 
-//this function performs a set of moves on the cube (the string it accepts is an encoded permutation of moves. See the 'numbertomove' function definition). This function was used to test series of moves from an input file when the program was being tested for accuracy
-void Cube::test(std::string s) {
-    for (int i=0;i<s.size();i++) {
-        numbertomove(s.at(i));
-    }
-};
-
 
 //this is the 'big bad function' - a function which runs the iterative deepening depth-first search. There were way more elegant ways of implementing this, but a bunch of for loops actually ended up being the easiest to write and fastest to implement.
 
@@ -840,7 +837,7 @@ void Cube::IDDFS(int startdepth) {
     do {
         if (depth==1) {
             for (char a='a';a<'a'+12;a++) {
-                numbertomove(a);
+                numbertomove(a);//tries all possible combinations of one move.
                 if (IsSolved()) {
                     std::cout<<"Solved! Steps for solving: "<<std::endl;
                     printmove(a);
@@ -859,7 +856,7 @@ void Cube::IDDFS(int startdepth) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
                     numbertomove(a);
-                    numbertomove(b);
+                    numbertomove(b);//tries all possible combinations of two moves. The next series of nested for loops test all possible combinations of three moves etc.
                     if (IsSolved()) {
                         std::cout<<"Solved! Steps for solving: "<<std::endl;
                         printmove(a);
@@ -1944,7 +1941,7 @@ void Cube::IDDFS(int startdepth) {
             }
         }
         
-    } while (depth<21&&(!found);
+    } while (depth<21&&!found);
     
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
     
