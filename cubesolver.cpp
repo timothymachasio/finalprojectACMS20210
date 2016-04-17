@@ -24,23 +24,23 @@ void numbertomove(char x);
 
 //This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 class Cube {
-    
-public: 
+
     //MEMBER VARIABLES
     
     //contains values for a solved cube
     char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
     
-    //keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
-    char unsolvedmatrix[6][9];
-    
     //holds new values for the unsolved matrix as moves are performed on the cube.
     char workingmatrix[6][9];
+    
+public:
+    //keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
+    char unsolvedmatrix[6][9];
     
     //keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
     char originalmatrix[6][9];
     
-    
+
     //MEMBER FUNCTIONS (Definitions are elsewhere)
     
     //function turns the right face of the cube clockwise
@@ -837,7 +837,7 @@ void Cube::IDDFS(int startdepth) {
     bool found = false;
     int depth = startdepth;
     
-    while (depth<21&&(found==false)) {
+    do {
         if (depth==1) {
             for (char a='a';a<'a'+12;a++) {
                 numbertomove(a);
@@ -1944,7 +1944,8 @@ void Cube::IDDFS(int startdepth) {
             }
         }
         
-    }
+    } while (depth<21&&(!found);
+    
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
     
 }
