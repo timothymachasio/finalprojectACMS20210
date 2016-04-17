@@ -25,10 +25,10 @@ bool IsCorrectFace (std::string userinput, int face);
 //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
 void numbertomove(char x);
 
-
+//This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 class Cube {
-public:
     
+public: 
     //MEMBER VARIABLES
     
     //contains values for a solved cube
@@ -42,9 +42,6 @@ public:
     
     //keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
     char originalmatrix[6][9];
-    
-    
-    
     
     
     //MEMBER FUNCTIONS (Definitions are elsewhere)
@@ -90,7 +87,7 @@ public:
     //function performs a set of moves on the cube
     void test(std::string s);
     
-    //this function runs an iterative deepening depth first search starting from the the depth specified in its parameter
+    //this function runs an unintelligent Iterative Deepening Depth First Search (IDDFS) starting from the the depth specified in its parameter
     void IDDFS(int startdepth);
     
     
@@ -99,9 +96,9 @@ public:
 
 int main() {
     
-    Cube Rubix;
+    Cube Rubix;//Creating an instance of the Cube class. We know it is spelled RUBIK'S. Thanks, Bjarne!
     
-    //1. RECEIVE INPUT FROM USER AND VALIDATE IT
+    //THIS PART OF THE CODE RECEIVES INPUT FROM THE USER AND VALIDATES IT
     
     for (int i=0; i<6; i++) {
         
