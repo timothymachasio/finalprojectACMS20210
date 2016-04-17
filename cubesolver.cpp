@@ -6,11 +6,8 @@
 //To see magic, enter a cube in which face 1 is bgbogrbgb, face 2 is wwywrywyy, face 3 is gbgrbogbg, face 4 is wwywoywyy, face 5 is rboryorgo, and face 6 is obrowrogr.
 
 #include <iostream>
-#include <fstream>
-#include <vector>
 #include <algorithm>
 #include <string>
-#include <cmath>
 
 //this function directs the program user on how to input the state of the cube
 void Directions(int i);
