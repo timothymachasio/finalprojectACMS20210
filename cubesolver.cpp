@@ -12,274 +12,221 @@
 #include <string>
 #include <cmath>
 
-
-using namespace std;
-
 //this function directs the program user on how to input the state of the cube
 void Directions(int i);
 //this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(string s);
+bool AllAllowedCharacters(std::string s);
 //this function converts a single digit (color code) and returns its corresponding color
-string Number2Color(int number);
+std::string Number2Color(int number);
 //this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
 int Letter2Digit (char c);
 //This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (string userinput, int face);
-//this function converts the string a user inputs into an integer which the program works with
-//int String2Number (string s);
-
-
-//function turns the right face of the cube clockwise
-void R(void);
-//function turns the left face of the cube clockwise
-void L(void);
-//function turns the upper face of the cube clockwise
-void U(void);
-//function turns the lower face of the cube clockwise
-void D(void);
-//function turns the front face of the cube clockwise
-void F(void);
-//function turns the back face of the cube clockwise
-void B(void);
-//these functions turn the cube anticlockwise
-void Ri(void);
-void Li(void);
-void Ui(void);
-void Di(void);
-void Fi(void);
-void Bi(void);
-//these functions turn the associated face of the cube twice
-void R2(void);
-void L2(void);
-void U2(void);
-void D2(void);
-void F2(void);
-void B2(void);
-
-
+bool IsCorrectFace (std::string userinput, int face);
 //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
 void numbertomove(char x);
-//function prints the current state of the cube
-void printcube(void);
-//function takes in number representing move and prints out the corresponding move
-void printmove(char x);
-//function performs a set of moves defined in the void algorithm() function
-void algorithm(void);
-//function checks whether cube is solved
-bool IsSolved(void);
-//function performs a set of moves on the cube
-void test(string s);
 
-//this function runs an iterative deepening depth first search starting from the the depth specified in its parameter
-void Search(int startdepth);
 
-//contains values for a solved cube
-char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
+class Cube {
+public:
+    
+    //MEMBER VARIABLES
+    
+    //contains values for a solved cube
+    char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
+    
+    //keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
+    char unsolvedmatrix[6][9];
+    
+    //holds new values for the unsolved matrix as moves are performed on the cube.
+    char workingmatrix[6][9];
+    
+    //keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
+    char originalmatrix[6][9];
+    
+    
+    
+    
+    
+    //MEMBER FUNCTIONS (Definitions are elsewhere)
+    
+    //function turns the right face of the cube clockwise
+    void R(void);
+    //function turns the left face of the cube clockwise
+    void L(void);
+    //function turns the upper face of the cube clockwise
+    void U(void);
+    //function turns the lower face of the cube clockwise
+    void D(void);
+    //function turns the front face of the cube clockwise
+    void F(void);
+    //function turns the back face of the cube clockwise
+    void B(void);
+    //these functions turn the cube anticlockwise
+    void Ri(void);
+    void Li(void);
+    void Ui(void);
+    void Di(void);
+    void Fi(void);
+    void Bi(void);
+    //these functions turn the associated face of the cube twice
+    void R2(void);
+    void L2(void);
+    void U2(void);
+    void D2(void);
+    void F2(void);
+    void B2(void);
+    
+    
+    //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
+    void numbertomove(char x);
+    //function prints the current state of the cube
+    void printcube(void);
+    //function takes in number representing move and prints out the corresponding move
+    void printmove(char x);
+    //function performs a set of moves defined in the void algorithm() function
+    void algorithm(void);
+    //function checks whether cube is solved
+    bool IsSolved(void);
+    //function performs a set of moves on the cube
+    void test(std::string s);
+    
+    //this function runs an iterative deepening depth first search starting from the the depth specified in its parameter
+    void IDDFS(int startdepth);
+    
+    
+};
 
-//keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
-char unsolvedmatrix[6][9];
-
-//holds new values for the unsolved matrix as moves are performed on the cube.
-char workingmatrix[6][9];
-
-//keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
-char originalmatrix[6][9];
 
 int main() {
     
-    vector<int> solution;//keeps correctly ordered sequence of moves required to solve the cube
-    
-    ifstream fin;
+    Cube Rubix;
     
     //1. RECEIVE INPUT FROM USER AND VALIDATE IT
     
     for (int i=0; i<6; i++) {
         
-        string userinput;//this string holds the value of user-friendly input (a string)
-        cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<endl;
-        cout<<endl;
+        std::string userinput;//this string holds the value of user-friendly input (a string)
+        std::cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<std::endl;
+        std::cout<<std::endl;
         Directions(i);//gives user directions on how to enter the state of the cube depending on which face is being asked for. Cool, right?
         //Example (For face with red center-> corresponding to i=1). The function will print:
         //Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last.
-        cout<<endl;
-        cout<<"Please note that:"<<endl;
-        cout<<endl;
-        cout<<"g - Green"<<endl;
-        cout<<"r - Red"<<endl;
-        cout<<"b - Blue"<<endl;
-        cout<<"o - Orange"<<endl;
-        cout<<"y - Yellow"<<endl;
-        cout<<"w - White"<<endl;
-        cout<<endl;
-        cout<<"Enter everything in lowercase. No spaces."<<endl;
-        cin>>userinput;
+        std::cout<<std::endl;;
+        std::cout<<"Please note that:"<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<"g - Green"<<std::endl;
+        std::cout<<"r - Red"<<std::endl;
+        std::cout<<"b - Blue"<<std::endl;
+        std::cout<<"o - Orange"<<std::endl;
+        std::cout<<"y - Yellow"<<std::endl;
+        std::cout<<"w - White"<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<"Enter everything in lowercase. No spaces."<<std::endl;
+        std::cin>>userinput;
         
         
         //step 1 of input validation: ensure that user only enters alphabetic characters
         while (!AllAllowedCharacters(userinput)) {
-            cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<endl;
-            cin>>userinput;//overwrites invalid values entered
+            std::cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<std::endl;
+            std::cin>>userinput;//overwrites invalid values entered
         }
         
         //step 2 of input validation: ensure that user has entered nine colors for each side of the cube
         while (!(userinput.size()==9)) {
-            cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<endl;
-            cin>>userinput;//overwrites invalid values entered
+            std::cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<std::endl;
+            std::cin>>userinput;//overwrites invalid values entered
         }
         
         
         //step 3 of input validation: to ensure the user has entered the correct face
         while (!IsCorrectFace(userinput,i)) {
-            cout<<"You entered values for the wrong face. Please enter colors for the face with a "<<Number2Color(i)<<" center as per the instructions."<<endl;
-            cin>>userinput;//overwrites the invalid values entered
+            std::cout<<"You entered values for the wrong face. Please enter colors for the face with a "<<Number2Color(i)<<" center as per the instructions."<<std::endl;
+            std::cin>>userinput;//overwrites the invalid values entered
         }
         
         //step 4 of input validation: ask user to confirm their input
         char valid;
-        cout<<"You entered: "<<userinput<<endl;
-        cout<<"Is this correct? \nIf it isn't, the program may run for a very long time!"<<endl;
-        cout<<"Please enter n if not, or y (or anything else) if yes. Note that 'n' must be lowercase"<<endl;
-        cin>>valid;
+        std::cout<<"You entered: "<<userinput<<std::endl;
+        std::cout<<"Is this correct? \nIf it isn't, the program may run for a very long time!"<<std::endl;
+        std::cout<<"Please enter n if not, or y (or anything else) if yes. Note that 'n' must be lowercase"<<std::endl;
+        std::cin>>valid;
         while (valid=='n') {
-            cout<<"Please enter the color values for the face with a "<<Number2Color(i)<<" center cubie again:"<<endl;
-            cin>>userinput;//overwrites wrong input
+            std::cout<<"Please enter the color values for the face with a "<<Number2Color(i)<<" center cubie again:"<<std::endl;
+            std::cin>>userinput;//overwrites wrong input
         }
         
         //converts user input into a multidimensional array
         
         for (int j=0; j<9; j++) {
-            unsolvedmatrix[i][j] = userinput.at(j);//this value will change as the functions run
-            originalmatrix[i][j] = userinput.at(j);//this value will not
+            Rubix.unsolvedmatrix[i][j] = userinput.at(j);//this value will change as the functions run
+            Rubix.originalmatrix[i][j] = userinput.at(j);//this value will not
         }
         //just to make the console output neat
-        cout<<endl;
-        cout<<endl;
-        cout<<endl;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
     }
     
     //2. CHECK WHETHER CUBE IS SOLVED. IF NOT, SOLVE IT AND RETURN SOLUTION TO USER.
     
-    if (IsSolved())
+    if (Rubix.IsSolved())
     {
         
-        cout<<"The cube is already solved. There's no work for me here."<<endl;
+        std::cout<<"The cube is already solved. There's no work for me here."<<std::endl;
         
     }
     
     else
         
     {
-        /*
-         
-        //THIS IS THE 'MEAT' OF THE PROGRAM
-        fin.open("charmoves.dat");//THIS IS A TEMPORARY INPUT FILE. THE TEAM IS DISCUSSING A WAY TO IMPLEMENT AN IDDFS right within the program to eliminate the need for this.
-        
-        cout<<"State of cube before algorithm: "<<endl;
-        
-        printcube();
-        
-        cout<<"The state of the cube is as follows:"<<endl;
-        cout<<endl;
-        printcube();
-        cout<<endl;
-        
-        
-        //'pushes' each line in the text file (which represents a combination of moves) in an attempt to solve the cube
-        
-        string moves;//variable stores the set of moves 'pushed' to it by the input stream
-        
-        //NOTE: THIS IS INTENDED AS A TEST AND WILL ONLY WORK A RUBIK'S CUBE SCRAMBLED USING THE MOVES R',U',L',D',F' or B' (scrambling algorithm must be six moves long).
-        //IT IS A BASIC DEPTH-FIRST SEARCH. THE SEARCH TREE HAS A DEPTH OF 6, AND A BRANCHING FACTOR OF 6
-        //THE FINAL IMPLEMENTATION OF OUR PROJECT WILL ATTEMPT TO UTILIZE AN ITERATIVE DEEPENING DEPTH-FIRST SEARCH
-        
-        for (int i=0;i<2985984;i++) {
-            
-            fin>>moves;//stores the current set of moves to be executed
-            
-            cout<<"Testing "<<moves<<endl;//ONLY FOR DEBUGGING PURPOSES
-            
-            test(moves);//tests the series of moves passed into the function
-            
-            if (IsSolved()) {
-                cout<<"The cube has been solved! See for yourself: "<<endl;
-                printcube();//print the cube then exit
-                cout<<"The moves used to solve the cube were "<<endl;
-                
-                //loop prints out each move used to solve the cube in correct order of implentation
-                for (int i=0;i<6;i++) {
-                    printmove(moves.at(i));
-                    cout<<endl;
-                }
-                break;
-                
-                
-            } else {
-                
-                
-                cout<<"The cube has not yet been solved"<<endl;
-                cout<<"Cube before reassignment"<<endl;
-                printcube();
-                for (int i=0;i<6;i++) {
-                    for (int j=0;j<9;j++) {
-                        unsolvedmatrix[i][j]=originalmatrix[i][j];//reassign values of originalmatrix to unsolvedmatrix before trying again
-                    }
-                }
-                cout<<"Cube after reassignment"<<endl;
-                printcube();
-            }
-            
-        }
-        fin.close();//close input file stream
-         
-         */
-        
-        
-        //this is a lame attempt at an iterative deepening depth-first search (beginner style). Note how we're starting at depth 1;
-        
-        Search(4);
+        Rubix.IDDFS(1);//initiates the iterative deepening depth-first search starting from Depth 1. A heuristic function to estimate the lower bound of the depth at which the IDDFS should start running would very much be in order right about here.
     }
     
     
-    if (IsSolved()) {
-        cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<endl;
+    if (Rubix.IsSolved()) {
+        std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<std::endl;
     } else {
-        cout<<"A solution was not found. The state of the cube you entered must have been invalid - otherwise a solution would have been found."<<endl;
+        std::cout<<"A solution was not found. The state of the cube you entered must have been invalid - otherwise a solution would have been found."<<std::endl;
     }
     
     
     return 0;
 }
 
+//USER INPUT AND DATA VALIDATION FUNCTIONS
+
+
+
 //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
 void Directions(int i) {
     switch (i) {
         case 0: {//corresponds to face with green center
-            cout<<"Hold the cube such that the orange center is facing down and the green center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Hold the cube such that the orange center is facing down and the green center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } case 1: {//corresponds to face with red center
-            cout<<"Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } case 2: {//corresponds to face with blue center
-            cout<<"Now hold the cube such that the red center is facing down and the blue center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Now hold the cube such that the red center is facing down and the blue center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } case 3: {//corresponds to face with orange center
-            cout<<"Now hold the cube such that the blue center is facing down and the orange center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Now hold the cube such that the blue center is facing down and the orange center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } case 4: {//corresponds to face with yellow center
-            cout<<"Now hold the cube such that the green center is facing down and the yellow center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Now hold the cube such that the green center is facing down and the yellow center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } case 5: {//corresponds to face with white center
-            cout<<"Now hold the cube such that the green center is facing down and the white center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<endl;
+            std::cout<<"Now hold the cube such that the green center is facing down and the white center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
             break;
         } default: {//theoretically this should never print because the counter for the loop in main() only runs from 0 to 5. This function accepts i (the loop counter) as its parameter
-            cout<<"WHAAAAAAAAAAAAAAAAAAAAAT?"<<endl;
+            std::cout<<"WHAAAAAAAAAAAAAAAAAAAAAT?"<<std::endl;
             break;
         }
     }
 };
 
 //this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(string s) {
+bool AllAllowedCharacters(std::string s) {
     for (int i=0;i<s.size();i++) {
         char c=s.at(i);
         if ((!isalpha(c))||!(c=='g'||c=='r'||c=='b'||c=='o'||c=='y'||c=='w')) {//checks whether character is alphabetic AND either g,r,b,o,y or w
@@ -289,7 +236,7 @@ bool AllAllowedCharacters(string s) {
     return true;
 };
 //this function converts a single digit (color code) and returns its corresponding color
-string Number2Color(int number) {
+std::string Number2Color(int number) {
     switch (number) {
         case 0: {
             return "green";
@@ -315,26 +262,15 @@ string Number2Color(int number) {
     }
 };
 //This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (string userinput, int face) {
+bool IsCorrectFace (std::string userinput, int face) {
     if (Letter2Digit(userinput.at(4))==face) {//checks to see whether fourth element corresponds to the face the program is asking for
         return true;
     } else {
         return false;
     }
 };
-//this function converts a user-input string into an integer which the program operates on. LOOKS LIKE WE MAY NOT NEED IT AFTER ALL.
-/*
- int String2Number (string s) {
- int result(0);
- for (int i=8;i>=0;i--) {
- result+=((Letter2Digit(s.at(i)))*(pow(10,(8-i))));//multiplies the corresponding value of each digit with corresponding place to find place value, then adds everything together. Starts with last digit, adds 10*next digit, etc.
- }
- 
- return result;
- };
- */
 
-//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input.
+//works in conjunction with IsCorrectFace function (see above)
 
 int Letter2Digit (char c) {
     
@@ -363,8 +299,14 @@ int Letter2Digit (char c) {
     }
 };
 
+
+
+
+//CUBE OPERATION AND NON-INPUT FUNCTIONS. These belong to the 'cube' class.
+
+
 //function corresponding to rotating left layer of cube (white facing left) clockwise
-void R() {
+void Cube::R() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[3][2];
@@ -428,7 +370,7 @@ void R() {
 };
 
 //function corresponding to rotating left layer of cube (yellow facing right) clockwise
-void L() {
+void Cube::L() {
     workingmatrix[0][0]=unsolvedmatrix[1][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[0][2];
@@ -491,7 +433,7 @@ void L() {
     }
 };
 //function corresponding to rotating upper layer of cube (blue facing up) clockwise
-void U() {
+void Cube::U() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[0][2];
@@ -555,7 +497,7 @@ void U() {
 };
 
 //function corresponding to rotating lower layer of cube (with green facing down) clockwise
-void D() {
+void Cube::D() {
     workingmatrix[0][0]=unsolvedmatrix[0][6];
     workingmatrix[0][1]=unsolvedmatrix[0][3];
     workingmatrix[0][2]=unsolvedmatrix[0][0];
@@ -619,7 +561,7 @@ void D() {
 };
 
 //function corresponding to rotating front of cube (red) clockwise
-void F() {
+void Cube::F() {
     workingmatrix[0][0]=unsolvedmatrix[4][6];
     workingmatrix[0][1]=unsolvedmatrix[4][3];
     workingmatrix[0][2]=unsolvedmatrix[4][0];
@@ -683,7 +625,7 @@ void F() {
 };
 
 //function corresponding to rotating back of cube (orange) clockwise
-void B() {
+void Cube::B() {
     workingmatrix[0][0]=unsolvedmatrix[0][0];
     workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[0][2];
@@ -746,64 +688,33 @@ void B() {
     }
 };
 
-//these functions turn the cube anticlockwise
-void Ri(void) {
-    R();
-    R();
-    R();
-};
-void Li(void) {
-    L();
-    L();
-    L();
-};
-void Ui(void) {
-    U();
-    U();
-    U();
-};
-void Di(void) {
-    D();
-    D();
-    D();
-};
-void Fi(void) {
-    F();
-    F();
-    F();
-};
-void Bi(void) {
-    B();
-    B();
-    B();
-};
 //these functions turn the associated face of the cube twice
-void R2(void) {
+void Cube::R2(void) {
     R();
     R();
 };
-void L2(void) {
+void Cube::L2(void) {
     L();
     L();
 };
-void U2(void) {
+void Cube::U2(void) {
     U();
     U();
 };
-void D2(void) {
+void Cube::D2(void) {
     D();
     D();
 };
-void F2(void) {
+void Cube::F2(void) {
     F();
     F();
 };
-void B2(void) {
+void Cube::B2(void) {
     B();
     B();
 };
 
-bool IsSolved() {
+bool Cube::IsSolved() {
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
             if (unsolvedmatrix[i][j]!=solvedmatrix[i][j]) {
@@ -814,19 +725,8 @@ bool IsSolved() {
     return true;
 };
 
-//this is the algorithm that was used to scramble the cube into the state the test program solves
-void algorithm() {
-    
-    Bi();
-    Fi();
-    Di();
-    Ui();
-    Ri();
-    Li();
-};
-
 //function to convert series of moves (in number form) to functions
-void numbertomove(char x) {
+void Cube::numbertomove(char x) {
     
     switch (x) {
         case 'a': {
@@ -866,76 +766,79 @@ void numbertomove(char x) {
             B2();
             break;
         } default: {
-            cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<endl;
+            std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
         }
     }
     
 };
 
-void printmove(char x) {
+void Cube::printmove(char x) {
     
     switch(x) {
         case 'a': {
-            cout<<" L "<<endl;
+            std::cout<<" L "<<std::endl;
             break;
         } case 'b' : {
-            cout<<" R "<<endl;
+            std::cout<<" R "<<std::endl;
             break;
         } case 'c' : {
-            cout<<" U "<<endl;
+            std::cout<<" U "<<std::endl;
             break;
         } case 'd' : {
-            cout<<" D "<<endl;
+            std::cout<<" D "<<std::endl;
             break;
         } case 'e' : {
-            cout<<" F "<<endl;
+            std::cout<<" F "<<std::endl;
             break;
         } case 'f' : {
-            cout<<" B "<<endl;
+            std::cout<<" B "<<std::endl;
             break;
         } case 'g' : {
-            cout<<" L2 "<<endl;
+            std::cout<<" L2 "<<std::endl;
             break;
         } case 'h' : {
-            cout<<" R2 "<<endl;
+            std::cout<<" R2 "<<std::endl;
             break;
         } case 'i' : {
-            cout<<" U2 "<<endl;
+            std::cout<<" U2 "<<std::endl;
             break;
         } case 'j' : {
-            cout<<" D2 "<<endl;
+            std::cout<<" D2 "<<std::endl;
             break;
         } case 'k' : {
-            cout<<" F2 "<<endl;
+            std::cout<<" F2 "<<std::endl;
             break;
         } case 'l' : {
-            cout<<" B2 "<<endl;
+            std::cout<<" B2 "<<std::endl;
             break;
         }default : {
-            cout<<"If this prints, there's a problem where the 'printmove' function is called"<<endl;
+            std::cout<<"If this prints, there's a problem where the 'printmove' function is called"<<std::endl;
         }
     }
 }
 
 //this function prints out the current state of the cube
-void printcube() {
+void Cube::printcube() {
     
     for (int i=0;i<6;i++) {
         for (int j=0;j<9;j++) {
-            cout<<unsolvedmatrix[i][j];
+            std::cout<<unsolvedmatrix[i][j];
         }
-        cout<<endl;
+        std::cout<<std::endl;
     }
 };
 
-//this function performs a set of moves on the cube (the string it accepts is an encoded permutation of moves. See the 'numbertomove' function definition)
-void test(string s) {
+//this function performs a set of moves on the cube (the string it accepts is an encoded permutation of moves. See the 'numbertomove' function definition). This function was used to test series of moves from an input file when the program was being tested for accuracy
+void Cube::test(std::string s) {
     for (int i=0;i<s.size();i++) {
         numbertomove(s.at(i));
     }
 };
 
-void Search(int startdepth) {
+
+//this is the 'big bad function' - a function which runs the iterative deepening depth-first search. There were way more elegant ways of implementing this, but a bunch of for loops actually ended up being the easiest to write and fastest to implement.
+
+void Cube::IDDFS(int startdepth) {
     
     bool found = false;
     int depth = startdepth;
@@ -945,7 +848,7 @@ void Search(int startdepth) {
             for (char a='a';a<'a'+12;a++) {
                 numbertomove(a);
                 if (IsSolved()) {
-                    cout<<"Solved! Steps for solving: "<<endl;
+                    std::cout<<"Solved! Steps for solving: "<<std::endl;
                     printmove(a);
                     found=true;//guarantees that loop will stop running when solution is found
                 } else {
@@ -956,15 +859,15 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;//You know, just to make sure the user knows what's going on.
-            Search(depth+1);//RECURSION. See for every other series of nested loops below. Will only run if solution is not found.
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;//You know, just to make sure the user knows what's going on.
+            IDDFS(depth+1);//RECURSION. See for every other series of nested loops below. Will only run if solution is not found.
         } else if (depth==2) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
                     numbertomove(a);
                     numbertomove(b);
                     if (IsSolved()) {
-                        cout<<"Solved! Steps for solving: "<<endl;
+                        std::cout<<"Solved! Steps for solving: "<<std::endl;
                         printmove(a);
                         printmove(b);
                         found=true;
@@ -978,8 +881,8 @@ void Search(int startdepth) {
                     
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==3) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -989,7 +892,7 @@ void Search(int startdepth) {
                         numbertomove(c);
                         
                         if (IsSolved()) {
-                            cout<<"Solved! Steps for solving: "<<endl;
+                            std::cout<<"Solved! Steps for solving: "<<std::endl;
                             printmove(a);
                             printmove(b);
                             printmove(c);
@@ -1005,8 +908,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==4) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1017,7 +920,7 @@ void Search(int startdepth) {
                             numbertomove(c);
                             numbertomove(d);
                             if (IsSolved()) {
-                                cout<<"Solved! Steps for solving: "<<endl;
+                                std::cout<<"Solved! Steps for solving: "<<std::endl;
                                 printmove(a);
                                 printmove(b);
                                 printmove(c);
@@ -1035,8 +938,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==5) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1049,7 +952,7 @@ void Search(int startdepth) {
                                 numbertomove(d);
                                 numbertomove(e);
                                 if (IsSolved()) {
-                                    cout<<"Solved! Steps for solving: "<<endl;
+                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
                                     printmove(a);
                                     printmove(b);
                                     printmove(c);
@@ -1068,8 +971,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==6) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1084,7 +987,7 @@ void Search(int startdepth) {
                                     numbertomove(e);
                                     numbertomove(f);
                                     if (IsSolved()) {
-                                        cout<<"Solved! Steps for solving: "<<endl;
+                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
                                         printmove(a);
                                         printmove(b);
                                         printmove(c);
@@ -1106,8 +1009,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==7) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1124,7 +1027,7 @@ void Search(int startdepth) {
                                         numbertomove(f);
                                         numbertomove(g);
                                         if (IsSolved()) {
-                                            cout<<"Solved! Steps for solving: "<<endl;
+                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
                                             printmove(a);
                                             printmove(b);
                                             printmove(c);
@@ -1147,8 +1050,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==8) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1167,7 +1070,7 @@ void Search(int startdepth) {
                                             numbertomove(g);
                                             numbertomove(h);
                                             if (IsSolved()) {
-                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                 printmove(a);
                                                 printmove(b);
                                                 printmove(c);
@@ -1192,8 +1095,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==9) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1214,7 +1117,7 @@ void Search(int startdepth) {
                                                 numbertomove(h);
                                                 numbertomove(i);
                                                 if (IsSolved()) {
-                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                     printmove(a);
                                                     printmove(b);
                                                     printmove(c);
@@ -1241,8 +1144,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==10) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1265,7 +1168,7 @@ void Search(int startdepth) {
                                                     numbertomove(i);
                                                     numbertomove(j);
                                                     if (IsSolved()) {
-                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                         printmove(a);
                                                         printmove(b);
                                                         printmove(c);
@@ -1293,8 +1196,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==11) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1319,7 +1222,7 @@ void Search(int startdepth) {
                                                         numbertomove(j);
                                                         numbertomove(k);
                                                         if (IsSolved()) {
-                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                             printmove(a);
                                                             printmove(b);
                                                             printmove(c);
@@ -1351,8 +1254,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==12) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1379,7 +1282,7 @@ void Search(int startdepth) {
                                                             numbertomove(k);
                                                             numbertomove(l);
                                                             if (IsSolved()) {
-                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                 printmove(a);
                                                                 printmove(b);
                                                                 printmove(c);
@@ -1413,8 +1316,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==13) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1443,7 +1346,7 @@ void Search(int startdepth) {
                                                                 numbertomove(l);
                                                                 numbertomove(m);
                                                                 if (IsSolved()) {
-                                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                     printmove(a);
                                                                     printmove(b);
                                                                     printmove(c);
@@ -1478,8 +1381,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==14) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1510,7 +1413,7 @@ void Search(int startdepth) {
                                                                     numbertomove(m);
                                                                     numbertomove(n);
                                                                     if (IsSolved()) {
-                                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                         printmove(a);
                                                                         printmove(b);
                                                                         printmove(c);
@@ -1547,8 +1450,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==15) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1581,7 +1484,7 @@ void Search(int startdepth) {
                                                                         numbertomove(n);
                                                                         numbertomove(o);
                                                                         if (IsSolved()) {
-                                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                             printmove(a);
                                                                             printmove(b);
                                                                             printmove(c);
@@ -1620,8 +1523,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==16) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1656,7 +1559,7 @@ void Search(int startdepth) {
                                                                             numbertomove(o);
                                                                             numbertomove(p);
                                                                             if (IsSolved()) {
-                                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                                 printmove(a);
                                                                                 printmove(b);
                                                                                 printmove(c);
@@ -1697,8 +1600,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==17) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1735,7 +1638,7 @@ void Search(int startdepth) {
                                                                                 numbertomove(p);
                                                                                 numbertomove(q);
                                                                                 if (IsSolved()) {
-                                                                                    cout<<"Solved! Steps for solving: "<<endl;
+                                                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                                     printmove(a);
                                                                                     printmove(b);
                                                                                     printmove(c);
@@ -1778,8 +1681,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==18) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1818,7 +1721,7 @@ void Search(int startdepth) {
                                                                                     numbertomove(q);
                                                                                     numbertomove(r);
                                                                                     if (IsSolved()) {
-                                                                                        cout<<"Solved! Steps for solving: "<<endl;
+                                                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                                         printmove(a);
                                                                                         printmove(b);
                                                                                         printmove(c);
@@ -1863,8 +1766,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         } else if (depth==19) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1905,7 +1808,7 @@ void Search(int startdepth) {
                                                                                         numbertomove(r);
                                                                                         numbertomove(s);
                                                                                         if (IsSolved()) {
-                                                                                            cout<<"Solved! Steps for solving: "<<endl;
+                                                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                                             printmove(a);
                                                                                             printmove(b);
                                                                                             printmove(c);
@@ -1952,8 +1855,8 @@ void Search(int startdepth) {
                     }
                 }
             }
-            cout<<"Now searching depth "<<depth+1<<"..."<<endl;
-            Search(depth+1);
+            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
+            IDDFS(depth+1);
         }else if (depth==20) {
             for (char a='a';a<'a'+12;a++) {
                 for (char b='a';b<'a'+12;b++) {
@@ -1996,7 +1899,7 @@ void Search(int startdepth) {
                                                                                             numbertomove(s);
                                                                                             numbertomove(t);
                                                                                             if (IsSolved()) {
-                                                                                                cout<<"Solved! Steps for solving: "<<endl;
+                                                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
                                                                                                 printmove(a);
                                                                                                 printmove(b);
                                                                                                 printmove(c);
@@ -2048,7 +1951,7 @@ void Search(int startdepth) {
         }
         
     }
-    cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
+    std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
     
 }
 
