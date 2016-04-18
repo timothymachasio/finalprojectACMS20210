@@ -830,8 +830,6 @@ void Cube::printcube() {
 //this is the 'big bad function' - a function which runs the iterative deepening depth-first search. There were way more elegant ways of implementing this, but a bunch of for loops actually ended up being the easiest to write and fastest to implement.
 
 void Cube::IDDFS(int startdepth) {
-    
-    bool found = false;
     int depth = startdepth;
     
     do {
@@ -841,7 +839,7 @@ void Cube::IDDFS(int startdepth) {
                 if (IsSolved()) {
                     std::cout<<"Solved! Steps for solving: "<<std::endl;
                     printmove(a);
-                    found=true;//guarantees that loop will stop running when solution is found
+                    goto label;//guarantees that loop will stop running when solution is found
                 } else {
                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                         for (int j=0;j<9;j++) {
@@ -861,7 +859,7 @@ void Cube::IDDFS(int startdepth) {
                         std::cout<<"Solved! Steps for solving: "<<std::endl;
                         printmove(a);
                         printmove(b);
-                        found=true;
+                        goto label;
                     }else {
                         for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                             for (int j=0;j<9;j++) {
@@ -887,7 +885,7 @@ void Cube::IDDFS(int startdepth) {
                             printmove(a);
                             printmove(b);
                             printmove(c);
-                            found=true;
+                            goto label;
                         } else {
                             for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                 for (int j=0;j<9;j++) {
@@ -916,7 +914,7 @@ void Cube::IDDFS(int startdepth) {
                                 printmove(b);
                                 printmove(c);
                                 printmove(d);
-                                found=true;
+                                goto label;
                             } else {
                                 for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                     for (int j=0;j<9;j++) {
@@ -949,7 +947,7 @@ void Cube::IDDFS(int startdepth) {
                                     printmove(c);
                                     printmove(d);
                                     printmove(e);
-                                    found=true;
+                                    goto label;
                                 } else {
                                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                         for (int j=0;j<9;j++) {
@@ -985,7 +983,7 @@ void Cube::IDDFS(int startdepth) {
                                         printmove(d);
                                         printmove(e);
                                         printmove(f);
-                                        found=true;
+                                        goto label;
                                     } else {
                                         for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                             for (int j=0;j<9;j++) {
@@ -1026,7 +1024,7 @@ void Cube::IDDFS(int startdepth) {
                                             printmove(e);
                                             printmove(f);
                                             printmove(g);
-                                            found=true;
+                                            goto label;
                                         } else {
                                             for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                 for (int j=0;j<9;j++) {
@@ -1070,7 +1068,7 @@ void Cube::IDDFS(int startdepth) {
                                                 printmove(f);
                                                 printmove(g);
                                                 printmove(h);
-                                                found=true;
+                                                goto label;
                                             } else {
                                                 for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                     for (int j=0;j<9;j++) {
@@ -1118,7 +1116,7 @@ void Cube::IDDFS(int startdepth) {
                                                     printmove(g);
                                                     printmove(h);
                                                     printmove(i);
-                                                    found=true;
+                                                    goto label;
                                                 } else {
                                                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                         for (int j=0;j<9;j++) {
@@ -1170,7 +1168,7 @@ void Cube::IDDFS(int startdepth) {
                                                         printmove(h);
                                                         printmove(i);
                                                         printmove(j);
-                                                        found=true;
+                                                        goto label;
                                                     }  else {
                                                         for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                             for (int j=0;j<9;j++) {
@@ -1225,7 +1223,7 @@ void Cube::IDDFS(int startdepth) {
                                                             printmove(i);
                                                             printmove(j);
                                                             printmove(k);
-                                                            found=true;
+                                                            goto label;
                                                         } else {
                                                             for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                 for (int j=0;j<9;j++) {
@@ -1286,7 +1284,7 @@ void Cube::IDDFS(int startdepth) {
                                                                 printmove(j);
                                                                 printmove(k);
                                                                 printmove(l);
-                                                                found=true;
+                                                                goto label;
                                                             } else {
                                                                 for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                     for (int j=0;j<9;j++) {
@@ -1351,7 +1349,7 @@ void Cube::IDDFS(int startdepth) {
                                                                     printmove(k);
                                                                     printmove(l);
                                                                     printmove(m);
-                                                                    found=true;
+                                                                    goto label;
                                                                 } else {
                                                                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                         for (int j=0;j<9;j++) {
@@ -1419,7 +1417,7 @@ void Cube::IDDFS(int startdepth) {
                                                                         printmove(l);
                                                                         printmove(m);
                                                                         printmove(n);
-                                                                        found=true;
+                                                                        goto label;
                                                                     } else {
                                                                         for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                             for (int j=0;j<9;j++) {
@@ -1491,7 +1489,7 @@ void Cube::IDDFS(int startdepth) {
                                                                             printmove(m);
                                                                             printmove(n);
                                                                             printmove(o);
-                                                                            found=true;
+                                                                            goto label;
                                                                         } else {
                                                                             for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                 for (int j=0;j<9;j++) {
@@ -1567,7 +1565,7 @@ void Cube::IDDFS(int startdepth) {
                                                                                 printmove(n);
                                                                                 printmove(o);
                                                                                 printmove(p);
-                                                                                found=true;
+                                                                                goto label;
                                                                             } else {
                                                                                 for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                     for (int j=0;j<9;j++) {
@@ -1647,7 +1645,7 @@ void Cube::IDDFS(int startdepth) {
                                                                                     printmove(o);
                                                                                     printmove(p);
                                                                                     printmove(q);
-                                                                                    found=true;
+                                                                                    goto label;
                                                                                 } else {
                                                                                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                         for (int j=0;j<9;j++) {
@@ -1731,7 +1729,7 @@ void Cube::IDDFS(int startdepth) {
                                                                                         printmove(p);
                                                                                         printmove(q);
                                                                                         printmove(r);
-                                                                                        found=true;
+                                                                                        goto label;
                                                                                     } else {
                                                                                         for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                             for (int j=0;j<9;j++) {
@@ -1819,7 +1817,7 @@ void Cube::IDDFS(int startdepth) {
                                                                                             printmove(q);
                                                                                             printmove(r);
                                                                                             printmove(s);
-                                                                                            found=true;
+                                                                                            goto label;
                                                                                         } else {
                                                                                             for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                                 for (int j=0;j<9;j++) {
@@ -1911,7 +1909,7 @@ void Cube::IDDFS(int startdepth) {
                                                                                                 printmove(r);
                                                                                                 printmove(s);
                                                                                                 printmove(t);
-                                                                                                found=true;//guarantees loop termination
+                                                                                                goto label;//guarantees loop termination
                                                                                             } else {
                                                                                                 for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                                                                                                     for (int j=0;j<9;j++) {
@@ -1941,9 +1939,11 @@ void Cube::IDDFS(int startdepth) {
             }
         }
         
-    } while (depth<21&&!found);
+    } while (depth<21);
     
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
+label:
     
+    std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you."<<std::endl;
 }
 
