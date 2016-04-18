@@ -288,7 +288,7 @@ int Letter2Digit (char c) {
 //CUBE OPERATION AND NON-INPUT FUNCTIONS. These belong to the 'cube' class.
 
 
-//assigns vales to 'originalmatrix' and 'unsolvedmatrix' in 'Cube' class
+//assigns vales to 'originalmatrix' and 'unsolvedmatrix' in 'Cube' class. The value of 'face' is determined by a for loop within which the functions runs
 void Cube::SetMatrices(int face, std::string s) {
     for (int j=0; j<9; j++) {
         unsolvedmatrix[face][j] = s.at(j);//this value will change as the functions R,U,D etc. run
