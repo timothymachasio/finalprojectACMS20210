@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <cstdlib>//this was included solely for the exit() function within the IDDFS function
 
 //this function directs the program user on how to input the state of the cube
 void Directions(int i);
@@ -1942,8 +1943,10 @@ void Cube::IDDFS(int startdepth) {
     } while (depth<21);
     
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
+
 label:
-    
     std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you."<<std::endl;
+    std::exit(0);
+    
 }
 
