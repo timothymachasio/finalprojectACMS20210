@@ -11,17 +11,15 @@
 #include <cstdlib>//this was included solely for the exit() function within the IDDFS function
 
 //this function directs the program user on how to input the state of the cube
-void Directions(int i);
+void Directions(int const& i);
 //this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(std::string s);
+bool AllAllowedCharacters(std::string const& s);
 //this function converts a single digit (color code) and returns its corresponding color
-std::string Number2Color(int number);
+std::string Number2Color(int const& number);
 //this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
-int Letter2Digit (char c);
+int Letter2Digit (char const& c);
 //This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (std::string userinput, int face);
-//function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
-void numbertomove(char x);
+bool IsCorrectFace (std::string const& userinput, int const& face);
 
 //This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 class Cube {
@@ -73,15 +71,15 @@ public:
     
     
     //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
-    void numbertomove(char x);
+    void numbertomove(char const& x);
     //function prints the current state of the cube
     void printcube(void);
     //function takes in number representing move and prints out the corresponding move
-    void printmove(char x);
+    void printmove(char const& x);
     //function checks whether cube is solved
     bool IsSolved(void);
-    //function sets value of 'unsolvedmatrix' and originalmatrix
-    void SetMatrices(int face, std::string s);
+    //function sets value of 'unsolvedmatrix' and originalmatrix. Works with 'for' loop in 'main' which provides value for int const& face
+    void SetMatrices(int const& face, std::string const& s);
     
     //this function runs an unintelligent Iterative Deepening Depth First Search (IDDFS) starting from the the depth specified in its parameter
     void IDDFS(int startdepth);
@@ -181,7 +179,7 @@ int main() {
 
 
 //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
-void Directions(int i) {
+void Directions(int const& i) {
     switch (i) {
         case 0: {//corresponds to face with green center
             std::cout<<"Hold the cube such that the orange center is facing down and the green center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
@@ -209,7 +207,7 @@ void Directions(int i) {
 };
 
 //this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(std::string s) {
+bool AllAllowedCharacters(std::string const& s) {
     for (int i=0;i<s.size();i++) {
         char c=s.at(i);
         if ((!isalpha(c))||!(c=='g'||c=='r'||c=='b'||c=='o'||c=='y'||c=='w')) {//checks whether character is alphabetic AND either g,r,b,o,y or w
@@ -219,7 +217,7 @@ bool AllAllowedCharacters(std::string s) {
     return true;
 };
 //this function converts a single digit (color code) and returns its corresponding color
-std::string Number2Color(int number) {
+std::string Number2Color(int const& number) {
     switch (number) {
         case 0: {
             return "green";
@@ -245,7 +243,7 @@ std::string Number2Color(int number) {
     }
 };
 //This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (std::string userinput, int face) {
+bool IsCorrectFace (std::string const& userinput, int const& face) {
     if (Letter2Digit(userinput.at(4))==face) {//checks to see whether fourth element corresponds to the face the program is asking for
         return true;
     } else {
@@ -255,7 +253,7 @@ bool IsCorrectFace (std::string userinput, int face) {
 
 //works in conjunction with IsCorrectFace function (see above)
 
-int Letter2Digit (char c) {
+int Letter2Digit (char const& c) {
     
     switch (c) {
         case 'g': {
@@ -289,7 +287,7 @@ int Letter2Digit (char c) {
 
 
 //assigns vales to 'originalmatrix' and 'unsolvedmatrix' in 'Cube' class. The value of 'face' is determined by a for loop within which the functions runs
-void Cube::SetMatrices(int face, std::string s) {
+void Cube::SetMatrices(int const& face, std::string const& s) {
     for (int j=0; j<9; j++) {
         unsolvedmatrix[face][j] = s.at(j);//this value will change as the functions R,U,D etc. run
         originalmatrix[face][j] = s.at(j);//this value will not change after a series of functions run, and will be reassined to 'originalmatrix' if a series of functions runs and a solution is not found
@@ -717,7 +715,7 @@ bool Cube::IsSolved() {
 };
 
 //function to convert series of moves (in number form) to functions
-void Cube::numbertomove(char x) {
+void Cube::numbertomove(char const& x) {
     
     switch (x) {
         case 'a': {
@@ -763,7 +761,7 @@ void Cube::numbertomove(char x) {
     
 };
 
-void Cube::printmove(char x) {
+void Cube::printmove(char const& x) {
     
     switch(x) {
         case 'a': {
