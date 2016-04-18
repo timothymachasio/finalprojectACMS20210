@@ -26,8 +26,8 @@ class Cube {
     
     //MEMBER VARIABLES
     
-    //contains values for a solved cube
-    char solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
+    //contains values for a solved cube. Never changes, hence 'const'
+    char const solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
     
     //holds new values for the unsolved matrix as moves are performed on the cube.
     char workingmatrix[6][9];
