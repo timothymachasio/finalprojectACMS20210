@@ -25,7 +25,7 @@ void numbertomove(char x);
 
 //This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 class Cube {
-
+    
     //MEMBER VARIABLES
     
     //contains values for a solved cube
@@ -41,7 +41,7 @@ class Cube {
     char originalmatrix[6][9];
     
 public:
-
+    
     //MEMBER FUNCTIONS (Definitions are elsewhere)
     
     //function turns the right face of the cube clockwise
@@ -173,15 +173,7 @@ int main() {
         Rubix.IDDFS(1);//initiates the iterative deepening depth-first search starting from Depth 1. A heuristic function to estimate the lower bound of the depth at which the IDDFS should start running would very much be in order right about here.
     }
     
-    
-    if (Rubix.IsSolved()) {
-        std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you at all times."<<std::endl;
-    } else {
-        std::cout<<"A solution was not found. The state of the cube you entered must have been invalid - otherwise a solution would have been found."<<std::endl;
-    }
-    
-    
-    return 0;
+    //the IDDFS function returns 0 and automatically ends the program if a solution is found. How, you ask? Scroll all the way to the end of the IDDFS function to find out!
 }
 
 //USER INPUT AND DATA VALIDATION FUNCTIONS
@@ -840,7 +832,7 @@ void Cube::IDDFS(int startdepth) {
                 if (IsSolved()) {
                     std::cout<<"Solved! Steps for solving: "<<std::endl;
                     printmove(a);
-                    goto label;//guarantees that loop will stop running when solution is found
+                    goto label;//label prints out instructions on how the cube should be solved using the generated moves and exits the program.
                 } else {
                     for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
                         for (int j=0;j<9;j++) {
@@ -1943,10 +1935,10 @@ void Cube::IDDFS(int startdepth) {
     } while (depth<21);
     
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
-
+    
 label:
     std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you."<<std::endl;
-    std::exit(0);
+    std::exit(0);//from cstdlib. Pretty cool, right?
     
 }
 
