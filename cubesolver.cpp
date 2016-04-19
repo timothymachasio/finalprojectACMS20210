@@ -41,8 +41,23 @@ class Cube {
 public:
     
     //MEMBER FUNCTIONS (Definitions are elsewhere)
-    
+    //1. INPUT FUNCTIONS. These enable the user to input the state of the cube.
+    //function creates instance of Rubik's Cube
+    void Create(void);
+    //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
+    void Directions(int const& i);
+    //this function checks whether everything the user inputs is in the allowed alphabetical form
+    bool AllAllowedCharacters(std::string const& s);
+    //this function converts a single digit (color code) and returns its corresponding color. Works hand in hand with 'Directions' function
+    std::string Number2Color(int const& number);
+    //works in conjunction with IsCorrectFace function
+    int Letter2Digit (char const& c);
     //function turns the right face of the cube clockwise
+    //This function checks to ensure the user is entering the right face of the cube
+    bool IsCorrectFace (std::string const& userinput, int const& face);
+    
+    //2. CUBE MOVEMENT FUNCTIONS. These mimic the effects of turning a certain face of the cube in the manner shown.
+    //turns right face of cube clockwise
     void R(void);
     //function turns the left face of the cube clockwise
     void L(void);
@@ -54,7 +69,7 @@ public:
     void F(void);
     //function turns the back face of the cube clockwise
     void B(void);
-    //these functions turn the cube anticlockwise
+    //these functions turn the cube faces anticlockwise
     void Ri(void);
     void Li(void);
     void Ui(void);
@@ -88,12 +103,33 @@ public:
 };
 
 
-int main() {
+int main() {//We would just like to mention that we're so proud of how short the main() function is.
     
     Cube Rubix;//Creating an instance of the Cube class. We know it is spelled RUBIK'S. Thanks, Bjarne!
     
     //THIS PART OF THE CODE RECEIVES INPUT FROM THE USER AND VALIDATES IT
     
+    Rubix.Create();//Allows user to input state of the cube, and validates the input before the rest of the code runs.
+    
+    //2. CHECK WHETHER CUBE IS SOLVED. IF NOT, SOLVE IT AND RETURN SOLUTION TO USER.
+    
+    if (Rubix.IsSolved())
+    {
+        
+        std::cout<<"The cube is already solved. There's no work for me here."<<std::endl;
+        
+    }
+    
+    else
+        
+    {
+        Rubix.IDDFS(1);//initiates the iterative deepening depth-first search starting from Depth 1. A heuristic function to estimate the lower bound of the depth at which the IDDFS should start running would very much be in order right about here.
+    }
+    
+    //the IDDFS function returns 0 and automatically ends the program if a solution is found. How, you ask? Scroll all the way to the end of the IDDFS function to find out!
+}
+
+void Cube::Create() {
     for (int i=0; i<6; i++) {
         
         std::string userinput;//this string holds the value of user-friendly input (a string)
@@ -148,30 +184,13 @@ int main() {
         
         //feeds values of 'userinput' into Rubix instance of Cube
         
-        Rubix.SetMatrices(i,userinput);
+        SetMatrices(i,userinput);
         
         //just to make the console output neat
         std::cout<<std::endl;
         std::cout<<std::endl;
         std::cout<<std::endl;
     }
-    
-    //2. CHECK WHETHER CUBE IS SOLVED. IF NOT, SOLVE IT AND RETURN SOLUTION TO USER.
-    
-    if (Rubix.IsSolved())
-    {
-        
-        std::cout<<"The cube is already solved. There's no work for me here."<<std::endl;
-        
-    }
-    
-    else
-        
-    {
-        Rubix.IDDFS(1);//initiates the iterative deepening depth-first search starting from Depth 1. A heuristic function to estimate the lower bound of the depth at which the IDDFS should start running would very much be in order right about here.
-    }
-    
-    //the IDDFS function returns 0 and automatically ends the program if a solution is found. How, you ask? Scroll all the way to the end of the IDDFS function to find out!
 }
 
 //USER INPUT AND DATA VALIDATION FUNCTIONS
@@ -179,7 +198,7 @@ int main() {
 
 
 //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
-void Directions(int const& i) {
+void Cube::Directions(int const& i) {
     switch (i) {
         case 0: {//corresponds to face with green center
             std::cout<<"Hold the cube such that the orange center is facing down and the green center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last."<<std::endl;
@@ -207,7 +226,7 @@ void Directions(int const& i) {
 };
 
 //this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(std::string const& s) {
+bool Cube::AllAllowedCharacters(std::string const& s) {
     for (int i=0;i<s.size();i++) {
         char c=s.at(i);
         if ((!isalpha(c))||!(c=='g'||c=='r'||c=='b'||c=='o'||c=='y'||c=='w')) {//checks whether character is alphabetic AND either g,r,b,o,y or w
@@ -217,7 +236,7 @@ bool AllAllowedCharacters(std::string const& s) {
     return true;
 };
 //this function converts a single digit (color code) and returns its corresponding color
-std::string Number2Color(int const& number) {
+std::string Cube::Number2Color(int const& number) {
     switch (number) {
         case 0: {
             return "green";
@@ -243,7 +262,7 @@ std::string Number2Color(int const& number) {
     }
 };
 //This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (std::string const& userinput, int const& face) {
+bool Cube::IsCorrectFace (std::string const& userinput, int const& face) {
     if (Letter2Digit(userinput.at(4))==face) {//checks to see whether fourth element corresponds to the face the program is asking for
         return true;
     } else {
@@ -253,7 +272,7 @@ bool IsCorrectFace (std::string const& userinput, int const& face) {
 
 //works in conjunction with IsCorrectFace function (see above)
 
-int Letter2Digit (char const& c) {
+int Cube::Letter2Digit (char const& c) {
     
     switch (c) {
         case 'g': {
@@ -281,9 +300,7 @@ int Letter2Digit (char const& c) {
 };
 
 
-
-
-//CUBE OPERATION AND NON-INPUT FUNCTIONS. These belong to the 'cube' class.
+//CUBE OPERATION AND NON-INPUT FUNCTIONS.
 
 
 //assigns vales to 'originalmatrix' and 'unsolvedmatrix' in 'Cube' class. The value of 'face' is determined by a for loop within which the functions runs
