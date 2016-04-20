@@ -3,17 +3,6 @@
 #include <string>
 #include <cstdlib>//this was included solely for the exit() function within the IDDFS function
 
-//this function directs the program user on how to input the state of the cube
-void Directions(int const& i);
-//this function checks whether everything the user inputs is in the allowed alphabetical form
-bool AllAllowedCharacters(std::string const& s);
-//this function converts a single digit (color code) and returns its corresponding color
-std::string Number2Color(int const& number);
-//this function converts each character of the string a user inputs into a digit which is fed into the String2Number function to create an integer equivalent of the user input
-int Letter2Digit (char const& c);
-//This function checks to ensure the user is entering the right face of the cube
-bool IsCorrectFace (std::string const& userinput, int const& face);
-
 //This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 
 class Cube {
