@@ -1,4 +1,4 @@
-// ACMS20210 Final Project: Rubik's Cube Solver
+// ACMS20210 Final Project: God's Algorithm Finder
 // Team Members: Timothy Machasio, Nick Courtney and Colin Humble
 // Instructor: Daniel Brake
 
