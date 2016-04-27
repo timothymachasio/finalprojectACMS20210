@@ -124,6 +124,10 @@ int main() {//We would just like to mention that we're so proud of how short the
 }
 
 void Cube::Create() {
+    
+    goto entercube;
+    
+entercube:
     for (int i=0; i<6; i++) {
         
         std::string userinput;//this string holds the value of user-friendly input (a string)
@@ -184,6 +188,14 @@ void Cube::Create() {
         std::cout<<std::endl;
         std::cout<<std::endl;
         std::cout<<std::endl;
+    }
+    
+    while (!IsValidCube()) {
+        
+        std::cout<<"The state of the cube you entered is not valid. Please enter the state of the cube again:"<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+        goto entercube;//make user input the state of the cube all over again
     }
     
 }
@@ -265,21 +277,18 @@ bool Cube::IsCorrectFace (std::string const& userinput, int const& face) {
     }
 };
 
-//WORK IN PROGRESS: This function will ensure that the state of the entire cube the user inputs is valid.
-/*
+//This function will ensure that the state of the entire cube the user inputs is valid.
  
 bool Cube::IsValidCube(void) {
-    //variable holds values of edge pieces entered by the user
-    std::vector<std::vector<int>> const edges ={{unsolvedmatrix[0][1],unsolvedmatrix[1][7]},{unsolvedmatrix[1][1],unsolvedmatrix[2][7]},{unsolvedmatrix[2][1],unsolvedmatrix[3][7]},{unsolvedmatrix[3][1],unsolvedmatrix[0][7]},{unsolvedmatrix[0][3],unsolvedmatrix[5][7]},{unsolvedmatrix[1][3],unsolvedmatrix[5][5]},{unsolvedmatrix[2][3],unsolvedmatrix[5][1]},{unsolvedmatrix[4][3],unsolvedmatrix[5][3]},{unsolvedmatrix[0][5],unsolvedmatrix[4][7]},{unsolvedmatrix[1][5],unsolvedmatrix[4][3]},{unsolvedmatrix[2][5],unsolvedmatrix[4][1]},{unsolvedmatrix[3][5],unsolvedmatrix[4][5]}};
-    //variable holds values of corner pieces entered by the user
-    std::vector<std::vector<int>> const corners={{unsolvedmatrix[0][0],unsolvedmatrix[1][6],unsolvedmatrix[5][8]},{unsolvedmatrix[0][8],unsolvedmatrix[1][8],unsolvedmatrix[4][6]},{unsolvedmatrix[0][6],unsolvedmatrix[5][6],unsolvedmatrix[3][8]},{unsolvedmatrix[0][8],unsolvedmatrix[4][8],unsolvedmatrix[3][6]},{unsolvedmatrix[2][0],unsolvedmatrix[5][0],unsolvedmatrix[3][6]},{unsolvedmatrix[2][2],unsolvedmatrix[4][2],unsolvedmatrix[3][8]},{unsolvedmatrix[2][6],unsolvedmatrix[1][0],unsolvedmatrix[5][2]},{unsolvedmatrix[2][8],unsolvedmatrix[1][2],unsolvedmatrix[4][0]}};
-    //variable holds correct possible values of edge pieces
-    std::vector<std::vector<int>> rightedges = {{'g','r'},{'g','y'},{'g','o'},{'g','w'},{'b','r'},{'b','w'},{'b','o'},{'b','y'},{'r','w'},{'r','y'},{'o','w'},{'o','y'}};
-    //variable holds correct possible values of corner pieces
-    std::vector<std::vector<int>> rightcorners = {{'g','r','w'},{'g','r','y'},{'g','y','o'},{'g','o','w'},{'b','r','w'},{'b','w','o'},{'b','o','y'},{'b','r','y'}};
     
+    bool edgescorrect = false;
+    bool cornerscorrect = false;
+    
+    //stores colors on edgepieces of input rubik's cube
+    std::vector<std::vector<char>> const edges ={{unsolvedmatrix[0][1],unsolvedmatrix[1][7]},{unsolvedmatrix[1][1],unsolvedmatrix[2][7]},{unsolvedmatrix[2][1],unsolvedmatrix[3][7]},{unsolvedmatrix[3][1],unsolvedmatrix[0][7]},{unsolvedmatrix[0][3],unsolvedmatrix[5][7]},{unsolvedmatrix[1][3],unsolvedmatrix[5][5]},{unsolvedmatrix[2][3],unsolvedmatrix[5][1]},{unsolvedmatrix[5][3],unsolvedmatrix[3][3]},{unsolvedmatrix[0][5],unsolvedmatrix[4][7]},{unsolvedmatrix[1][5],unsolvedmatrix[4][3]},{unsolvedmatrix[2][5],unsolvedmatrix[4][1]},{unsolvedmatrix[3][5],unsolvedmatrix[4][5]}};
+    std::vector<std::vector<int>> const rightedges = {{'g','r'},{'g','y'},{'g','o'},{'g','w'},{'b','r'},{'b','w'},{'b','o'},{'b','y'},{'r','w'},{'r','y'},{'o','w'},{'o','y'}};
+    //keeps values of valid vector indices
     std::vector<int> foundedges;
-    std::vector<int> foundcorners;
     
     for (int i=0;i<edges.size();i++) {
         for (int j=0;j<rightedges.size();j++) {
@@ -288,6 +297,21 @@ bool Cube::IsValidCube(void) {
             }
         }
     }
+    //stores values for all vector positions that should be found to be valid before user input can be accepted. Ensures that no position features more than once
+    std::vector<int> const shouldbefoundedges = {0,1,2,3,4,5,6,7,8,9,10,11};
+    
+    if (std::is_permutation(foundedges.begin(),foundedges.end(),shouldbefoundedges.begin())) {
+        edgescorrect = true;//changes value of edgescorrect to 'true'. Must be 'true' for cube state to be accepted
+    }
+    
+    
+    
+    //holds values of corner pieces entered by the user
+    std::vector<std::vector<char>> const corners={{unsolvedmatrix[0][0],unsolvedmatrix[1][6],unsolvedmatrix[5][8]},{unsolvedmatrix[0][8],unsolvedmatrix[1][8],unsolvedmatrix[4][6]},{unsolvedmatrix[0][6],unsolvedmatrix[5][6],unsolvedmatrix[3][8]},{unsolvedmatrix[0][8],unsolvedmatrix[4][8],unsolvedmatrix[3][6]},{unsolvedmatrix[2][0],unsolvedmatrix[5][0],unsolvedmatrix[3][6]},{unsolvedmatrix[2][2],unsolvedmatrix[4][2],unsolvedmatrix[3][8]},{unsolvedmatrix[2][6],unsolvedmatrix[1][0],unsolvedmatrix[5][2]},{unsolvedmatrix[2][8],unsolvedmatrix[1][2],unsolvedmatrix[4][0]}};
+    //holds correct possible values of corner pieces
+    std::vector<std::vector<char>> rightcorners = {{'g','r','w'},{'g','r','y'},{'g','y','o'},{'g','o','w'},{'b','r','w'},{'b','w','o'},{'b','o','y'},{'b','r','y'}};
+    //keeps values of valid vector indices
+    std::vector<int> foundcorners;
     
     for (int i=0;i<corners.size();i++) {
         for (int j=0;j<rightcorners.size();j++) {
@@ -296,22 +320,22 @@ bool Cube::IsValidCube(void) {
             }
         }
     }
-    
-    //contains arbitraty permutation of figures that should be in 'foundedges' if all edges are positioned correctly
-    std::vector<int> shouldbefoundedges = {0,1,2,3,4,5,6,7,8,9,10,11};
     //contains arbitrary permutation of figures that should be in 'foundcorners' if all corners are positioned correctly
     std::vector<int> shouldbefoundcorners = {0,1,2,3,4,5,6,7};
     
-    //returns 'true' or 'false' depending on whether both the edges and corners are valid
+    if (std::is_permutation(foundcorners.begin(),foundcorners.end(),shouldbefoundcorners.begin())) {
+        cornerscorrect = true;//changes value of cornerscorrect to 'true'. Must be 'true' for cube state to be accepted.
+    }
     
-    if ((std::is_permutation(foundedges.begin(),foundedges.end(),shouldbefoundedges.begin()))&&(std::is_permutation(foundcorners.begin(),foundcorners.end(),shouldbefoundcorners.begin()))) {
+    if (edgescorrect&&cornerscorrect) {
         return true;
     } else {
         return false;
     }
+
 };
  
-*/
+
 
 //works in conjunction with IsCorrectFace function (see above)
 
@@ -351,19 +375,14 @@ void Cube::SetMatrices(int const& face, std::string const& s) {
     for (int j=0; j<9; j++) {
         unsolvedmatrix[face][j] = s.at(j);//this value will change as the functions R,U,D etc. run
         originalmatrix[face][j] = s.at(j);//this value will not change after a series of functions run, and will be reassined to 'originalmatrix' if a series of functions runs and a solution is not found
+        workingmatrix[face][j] = s.at(j);
     }
 }
 
 //function corresponding to rotating left layer of cube (white facing left) clockwise
 void Cube::R() {
-    workingmatrix[0][0]=unsolvedmatrix[0][0];
-    workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[3][2];
-    workingmatrix[0][3]=unsolvedmatrix[0][3];
-    workingmatrix[0][4]=unsolvedmatrix[0][4];
     workingmatrix[0][5]=unsolvedmatrix[3][5];
-    workingmatrix[0][6]=unsolvedmatrix[0][6];
-    workingmatrix[0][7]=unsolvedmatrix[0][7];
     workingmatrix[0][8]=unsolvedmatrix[3][8];
     workingmatrix[1][0]=unsolvedmatrix[1][0];
     workingmatrix[1][1]=unsolvedmatrix[1][1];
@@ -1598,7 +1617,6 @@ void Cube::IDDFS(int startdepth) {
                     }
                 }
             }
-            goto label;
             std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
             IDDFS(depth+1);
         } else if (depth==11) {
