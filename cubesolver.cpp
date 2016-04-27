@@ -501,15 +501,6 @@ void Cube::L() {
 };
 //function corresponding to rotating upper layer of cube (blue facing up) clockwise
 void Cube::U() {
-    workingmatrix[0][0]=unsolvedmatrix[0][0];
-    workingmatrix[0][1]=unsolvedmatrix[0][1];
-    workingmatrix[0][2]=unsolvedmatrix[0][2];
-    workingmatrix[0][3]=unsolvedmatrix[0][3];
-    workingmatrix[0][4]=unsolvedmatrix[0][4];
-    workingmatrix[0][5]=unsolvedmatrix[0][5];
-    workingmatrix[0][6]=unsolvedmatrix[0][6];
-    workingmatrix[0][7]=unsolvedmatrix[0][7];
-    workingmatrix[0][8]=unsolvedmatrix[0][8];
     workingmatrix[1][0]=unsolvedmatrix[4][0];
     workingmatrix[1][1]=unsolvedmatrix[4][1];
     workingmatrix[1][2]=unsolvedmatrix[4][2];
