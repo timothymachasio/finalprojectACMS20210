@@ -10,7 +10,9 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <vector>
 #include <cstdlib>//this was included solely for the exit() function within the IDDFS function
+#include <ctime>
 
 //This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
 class Cube {
@@ -47,7 +49,7 @@ public:
     //This function checks to ensure the user is entering the right face of the cube
     bool IsCorrectFace (std::string const& userinput, int const& face);
     //function checks whether the input state of the cube is valid
-    //bool IsValidCube (void); WORK IN PROGRESS
+    bool IsValidCube (void);
     
     //2. CUBE MOVEMENT FUNCTIONS. These mimic the effects of turning a certain face of the cube in the manner shown.
     //turns right face of cube clockwise
@@ -91,7 +93,6 @@ public:
     
     //this function runs an unintelligent Iterative Deepening Depth First Search (IDDFS) starting from the the depth specified in its parameter
     void IDDFS(int startdepth);
-    
     
 };
 
@@ -145,15 +146,15 @@ void Cube::Create() {
         std::cin>>userinput;
         
         
-        //step 1 of input validation: ensure that user only enters alphabetic characters
-        while (!AllAllowedCharacters(userinput)) {
-            std::cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<std::endl;
+        //step 1 of input validation: ensure that user has entered nine colors for each side of the cube
+        while (!(userinput.size()==9)) {
+            std::cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<std::endl;
             std::cin>>userinput;//overwrites invalid values entered
         }
         
-        //step 2 of input validation: ensure that user has entered nine colors for each side of the cube
-        while (!(userinput.size()==9)) {
-            std::cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<std::endl;
+        //step 2 of input validation: ensure that user only enters alphabetic characters
+        while (!AllAllowedCharacters(userinput)) {
+            std::cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<std::endl;
             std::cin>>userinput;//overwrites invalid values entered
         }
         
@@ -184,6 +185,7 @@ void Cube::Create() {
         std::cout<<std::endl;
         std::cout<<std::endl;
     }
+    
 }
 
 //USER INPUT AND DATA VALIDATION FUNCTIONS
@@ -264,29 +266,53 @@ bool Cube::IsCorrectFace (std::string const& userinput, int const& face) {
 };
 
 //WORK IN PROGRESS: This function will ensure that the state of the entire cube the user inputs is valid.
-
 /*
+ 
 bool Cube::IsValidCube(void) {
     //variable holds values of edge pieces entered by the user
-    char const edges[12][2]={{unsolvedmatrix[0][1],unsolvedmatrix[1][7]},{unsolvedmatrix[1][1],unsolvedmatrix[2][7]},{unsolvedmatrix[2][1],unsolvedmatrix[3][7]},{unsolvedmatrix[3][1],unsolvedmatrix[0][7]},{unsolvedmatrix[0][3],unsolvedmatrix[5][7]},{unsolvedmatrix[1][3],unsolvedmatrix[5][5]},{unsolvedmatrix[2][3],unsolvedmatrix[5][1]},{unsolvedmatrix[4][3],unsolvedmatrix[5][3]},{unsolvedmatrix[0][5],unsolvedmatrix[4][7]},{unsolvedmatrix[1][5],unsolvedmatrix[4][3]},{unsolvedmatrix[2][5],unsolvedmatrix[4][1]},{unsolvedmatrix[3][5],unsolvedmatrix[4][5]}};
+    std::vector<std::vector<int>> const edges ={{unsolvedmatrix[0][1],unsolvedmatrix[1][7]},{unsolvedmatrix[1][1],unsolvedmatrix[2][7]},{unsolvedmatrix[2][1],unsolvedmatrix[3][7]},{unsolvedmatrix[3][1],unsolvedmatrix[0][7]},{unsolvedmatrix[0][3],unsolvedmatrix[5][7]},{unsolvedmatrix[1][3],unsolvedmatrix[5][5]},{unsolvedmatrix[2][3],unsolvedmatrix[5][1]},{unsolvedmatrix[4][3],unsolvedmatrix[5][3]},{unsolvedmatrix[0][5],unsolvedmatrix[4][7]},{unsolvedmatrix[1][5],unsolvedmatrix[4][3]},{unsolvedmatrix[2][5],unsolvedmatrix[4][1]},{unsolvedmatrix[3][5],unsolvedmatrix[4][5]}};
     //variable holds values of corner pieces entered by the user
-    char const corners[8][3]={{unsolvedmatrix[0][0],unsolvedmatrix[1][6],unsolvedmatrix[5][8]},{unsolvedmatrix[0][8],unsolvedmatrix[1][8],unsolvedmatrix[4][6]},{unsolvedmatrix[0][6],unsolvedmatrix[5][6],unsolvedmatrix[3][8]},{unsolvedmatrix[0][8],unsolvedmatrix[4][8],unsolvedmatrix[3][6]},{unsolvedmatrix[2][0],unsolvedmatrix[5][0],unsolvedmatrix[3][6]},{unsolvedmatrix[2][2],unsolvedmatrix[4][2],unsolvedmatrix[3][8]},{unsolvedmatrix[2][6],unsolvedmatrix[1][0],unsolvedmatrix[5][2]},{unsolvedmatrix[2][8],unsolvedmatrix[1][2],unsolvedmatrix[4][0]}};
+    std::vector<std::vector<int>> const corners={{unsolvedmatrix[0][0],unsolvedmatrix[1][6],unsolvedmatrix[5][8]},{unsolvedmatrix[0][8],unsolvedmatrix[1][8],unsolvedmatrix[4][6]},{unsolvedmatrix[0][6],unsolvedmatrix[5][6],unsolvedmatrix[3][8]},{unsolvedmatrix[0][8],unsolvedmatrix[4][8],unsolvedmatrix[3][6]},{unsolvedmatrix[2][0],unsolvedmatrix[5][0],unsolvedmatrix[3][6]},{unsolvedmatrix[2][2],unsolvedmatrix[4][2],unsolvedmatrix[3][8]},{unsolvedmatrix[2][6],unsolvedmatrix[1][0],unsolvedmatrix[5][2]},{unsolvedmatrix[2][8],unsolvedmatrix[1][2],unsolvedmatrix[4][0]}};
     //variable holds correct possible values of edge pieces
-    char rightedges[12][2] = {{'g','r'},{'g','y'},{'g','o'},{'g','w'},{'b','r'},{'b','w'},{'b','o'},{'b','y'},{'r','w'},{'r','y'},{'o','w'},{'o','y'}};
+    std::vector<std::vector<int>> rightedges = {{'g','r'},{'g','y'},{'g','o'},{'g','w'},{'b','r'},{'b','w'},{'b','o'},{'b','y'},{'r','w'},{'r','y'},{'o','w'},{'o','y'}};
     //variable holds correct possible values of corner pieces
-    char rightcorners[8][3] = {{'g','r','w'},{'g','r','y'},{'g','y','o'},{'g','o','w'},{'b','r','w'},{'b','w','o'},{'b','o','y'},{'b','r','y'}};
- 
-    //this piece of code checks to ensure that user-input edges are permutations of possible color positions
- 
-    //WORK IN PROGRESS
- 
-    //this piece of code checks to ensure that user-input corners are permutations of possible color positions
- 
-    //WORK IN PROGRESS
- 
-    return true;
+    std::vector<std::vector<int>> rightcorners = {{'g','r','w'},{'g','r','y'},{'g','y','o'},{'g','o','w'},{'b','r','w'},{'b','w','o'},{'b','o','y'},{'b','r','y'}};
+    
+    std::vector<int> foundedges;
+    std::vector<int> foundcorners;
+    
+    for (int i=0;i<edges.size();i++) {
+        for (int j=0;j<rightedges.size();j++) {
+            if (std::is_permutation(edges[i].begin(),edges[i].end(),rightedges[j].begin())) {
+                foundedges.push_back(i);//pushes to 'foundedges' position of valid vector combination. If all values of edges are correct, this vector will contain all values from 0 to (edges.size()-1)
+            }
+        }
+    }
+    
+    for (int i=0;i<corners.size();i++) {
+        for (int j=0;j<rightcorners.size();j++) {
+            if (std::is_permutation(corners[i].begin(),corners[i].end(),rightcorners[j].begin())) {
+                foundcorners.push_back(i);//pushes to 'foundcorners' position of valid vector combination. If all values of corners are correct, this vector will contain all values from 0 to (corners.size()-1)
+            }
+        }
+    }
+    
+    //contains arbitraty permutation of figures that should be in 'foundedges' if all edges are positioned correctly
+    std::vector<int> shouldbefoundedges = {0,1,2,3,4,5,6,7,8,9,10,11};
+    //contains arbitrary permutation of figures that should be in 'foundcorners' if all corners are positioned correctly
+    std::vector<int> shouldbefoundcorners = {0,1,2,3,4,5,6,7};
+    
+    //returns 'true' or 'false' depending on whether both the edges and corners are valid
+    
+    if ((std::is_permutation(foundedges.begin(),foundedges.end(),shouldbefoundedges.begin()))&&(std::is_permutation(foundcorners.begin(),foundcorners.end(),shouldbefoundcorners.begin()))) {
+        return true;
+    } else {
+        return false;
+    }
 };
+ 
 */
+
 //works in conjunction with IsCorrectFace function (see above)
 
 int Cube::Letter2Digit (char const& c) {
@@ -395,7 +421,6 @@ void Cube::R() {
 //function corresponding to rotating left layer of cube (yellow facing right) clockwise
 void Cube::L() {
     workingmatrix[0][0]=unsolvedmatrix[1][0];
-    workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[0][2];
     workingmatrix[0][3]=unsolvedmatrix[1][3];
     workingmatrix[0][4]=unsolvedmatrix[0][4];
@@ -711,30 +736,388 @@ void Cube::B() {
     }
 };
 
+
+
 //these functions turn the associated face of the cube twice
 void Cube::R2(void) {
-    R();
-    R();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[2][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[2][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[2][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[3][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[3][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[3][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[0][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[0][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[0][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[1][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[1][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[1][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][8];
+    workingmatrix[4][1]=unsolvedmatrix[4][7];
+    workingmatrix[4][2]=unsolvedmatrix[4][6];
+    workingmatrix[4][3]=unsolvedmatrix[4][5];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][3];
+    workingmatrix[4][6]=unsolvedmatrix[4][2];
+    workingmatrix[4][7]=unsolvedmatrix[4][1];
+    workingmatrix[4][8]=unsolvedmatrix[4][0];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
 void Cube::L2(void) {
-    L();
-    L();
+    workingmatrix[0][0]=unsolvedmatrix[2][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[2][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[2][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[3][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[3][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[3][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[0][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[0][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[0][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[1][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[1][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[1][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][8];
+    workingmatrix[5][1]=unsolvedmatrix[5][7];
+    workingmatrix[5][2]=unsolvedmatrix[5][6];
+    workingmatrix[5][3]=unsolvedmatrix[5][5];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][3];
+    workingmatrix[5][6]=unsolvedmatrix[5][2];
+    workingmatrix[5][7]=unsolvedmatrix[5][1];
+    workingmatrix[5][8]=unsolvedmatrix[5][0];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
 void Cube::U2(void) {
-    U();
-    U();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[3][8];
+    workingmatrix[1][1]=unsolvedmatrix[3][7];
+    workingmatrix[1][2]=unsolvedmatrix[3][6];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][8];
+    workingmatrix[2][1]=unsolvedmatrix[2][7];
+    workingmatrix[2][2]=unsolvedmatrix[2][6];
+    workingmatrix[2][3]=unsolvedmatrix[2][5];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][3];
+    workingmatrix[2][6]=unsolvedmatrix[2][2];
+    workingmatrix[2][7]=unsolvedmatrix[2][1];
+    workingmatrix[2][8]=unsolvedmatrix[2][0];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[1][2];
+    workingmatrix[3][7]=unsolvedmatrix[1][1];
+    workingmatrix[3][8]=unsolvedmatrix[1][0];
+    workingmatrix[4][0]=unsolvedmatrix[5][0];
+    workingmatrix[4][1]=unsolvedmatrix[5][1];
+    workingmatrix[4][2]=unsolvedmatrix[5][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[4][0];
+    workingmatrix[5][1]=unsolvedmatrix[4][1];
+    workingmatrix[5][2]=unsolvedmatrix[4][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
+//continue from here
+
 void Cube::D2(void) {
-    D();
-    D();
+    workingmatrix[0][0]=unsolvedmatrix[0][8];
+    workingmatrix[0][1]=unsolvedmatrix[0][7];
+    workingmatrix[0][2]=unsolvedmatrix[0][6];
+    workingmatrix[0][3]=unsolvedmatrix[0][5];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][3];
+    workingmatrix[0][6]=unsolvedmatrix[0][2];
+    workingmatrix[0][7]=unsolvedmatrix[0][1];
+    workingmatrix[0][8]=unsolvedmatrix[0][0];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[3][2];
+    workingmatrix[1][7]=unsolvedmatrix[3][1];
+    workingmatrix[1][8]=unsolvedmatrix[3][0];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[1][8];
+    workingmatrix[3][1]=unsolvedmatrix[1][7];
+    workingmatrix[3][2]=unsolvedmatrix[1][6];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[5][6];
+    workingmatrix[4][7]=unsolvedmatrix[5][7];
+    workingmatrix[4][8]=unsolvedmatrix[5][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[4][6];
+    workingmatrix[5][7]=unsolvedmatrix[4][7];
+    workingmatrix[5][8]=unsolvedmatrix[4][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
+//THERE IS A PROBLEM HERE
+
 void Cube::F2(void) {
-    F();
-    F();
+    workingmatrix[0][0]=unsolvedmatrix[2][8];
+    workingmatrix[0][1]=unsolvedmatrix[2][7];
+    workingmatrix[0][2]=unsolvedmatrix[2][6];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][8];
+    workingmatrix[1][1]=unsolvedmatrix[1][7];
+    workingmatrix[1][2]=unsolvedmatrix[1][6];
+    workingmatrix[1][3]=unsolvedmatrix[1][5];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][3];
+    workingmatrix[1][6]=unsolvedmatrix[1][2];
+    workingmatrix[1][7]=unsolvedmatrix[1][1];
+    workingmatrix[1][8]=unsolvedmatrix[1][0];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[0][2];
+    workingmatrix[2][7]=unsolvedmatrix[0][1];
+    workingmatrix[2][8]=unsolvedmatrix[0][0];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[5][8];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[5][5];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[5][2];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[4][6];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[4][3];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[4][0];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
 void Cube::B2(void) {
-    B();
-    B();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[2][2];
+    workingmatrix[0][7]=unsolvedmatrix[2][1];
+    workingmatrix[0][8]=unsolvedmatrix[2][0];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[0][8];
+    workingmatrix[2][1]=unsolvedmatrix[0][7];
+    workingmatrix[2][2]=unsolvedmatrix[0][6];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][8];
+    workingmatrix[3][1]=unsolvedmatrix[3][7];
+    workingmatrix[3][2]=unsolvedmatrix[3][6];
+    workingmatrix[3][3]=unsolvedmatrix[3][5];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][3];
+    workingmatrix[3][6]=unsolvedmatrix[3][2];
+    workingmatrix[3][7]=unsolvedmatrix[3][1];
+    workingmatrix[3][8]=unsolvedmatrix[3][0];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[5][6];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[5][3];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[5][0];
+    workingmatrix[5][0]=unsolvedmatrix[4][8];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[4][5];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[4][2];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
 
 bool Cube::IsSolved() {
@@ -789,7 +1172,8 @@ void Cube::numbertomove(char const& x) {
             B2();
             break;
         } default: {
-            std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
+            break;
+            //std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
         }
     }
     
@@ -855,6 +1239,9 @@ void Cube::printcube() {
 //this is the 'big bad function' - a function which runs the iterative deepening depth-first search. There were way more elegant ways of implementing this, but a bunch of for loops actually ended up being the easiest to write and fastest to implement.
 
 void Cube::IDDFS(int startdepth) {
+    
+    std::time_t start = std::time(NULL);//to keep track of how long the program runs for
+    
     int depth = startdepth;
     
     do {
@@ -1170,7 +1557,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     numbertomove(a);
                                                     numbertomove(b);
                                                     numbertomove(c);
@@ -1200,7 +1587,8 @@ void Cube::IDDFS(int startdepth) {
                                                                 unsolvedmatrix[i][j]=originalmatrix[i][j];
                                                             }
                                                         }
-                                                    }                                               }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -1210,6 +1598,7 @@ void Cube::IDDFS(int startdepth) {
                     }
                 }
             }
+            goto label;
             std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
             IDDFS(depth+1);
         } else if (depth==11) {
@@ -1222,7 +1611,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         numbertomove(a);
                                                         numbertomove(b);
@@ -1280,7 +1669,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             numbertomove(a);
@@ -1342,7 +1731,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1407,7 +1796,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1476,7 +1865,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1549,7 +1938,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1626,7 +2015,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1707,7 +2096,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1792,7 +2181,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1881,7 +2270,7 @@ void Cube::IDDFS(int startdepth) {
                                     for (char g='a';g<'a'+12;g++) {
                                         for (char h='a';h<'a'+12;h++) {
                                             for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
+                                                for (char j='a';j<'a'+12;j++) {
                                                     for (char k='a';k<'a'+12;k++) {
                                                         for (char l='a';l<'a'+12;l++) {
                                                             for (char m='a';m<'a'+12;m++) {
@@ -1969,6 +2358,9 @@ void Cube::IDDFS(int startdepth) {
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
     
 label:
+    std::cout<<std::endl;
+    std::cout<<"The search took "<<std::difftime(std::time(NULL),start)<<" seconds."<<std::endl;//print out how long it took the program to find solution to given cube state
+    std::cout<<std::endl;
     std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you."<<std::endl;
     std::exit(0);//from cstdlib. Pretty cool, right?
     
