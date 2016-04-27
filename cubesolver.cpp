@@ -375,14 +375,19 @@ void Cube::SetMatrices(int const& face, std::string const& s) {
     for (int j=0; j<9; j++) {
         unsolvedmatrix[face][j] = s.at(j);//this value will change as the functions R,U,D etc. run
         originalmatrix[face][j] = s.at(j);//this value will not change after a series of functions run, and will be reassined to 'originalmatrix' if a series of functions runs and a solution is not found
-        workingmatrix[face][j] = s.at(j);
     }
 }
 
 //function corresponding to rotating left layer of cube (white facing left) clockwise
 void Cube::R() {
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
     workingmatrix[0][2]=unsolvedmatrix[3][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
     workingmatrix[0][5]=unsolvedmatrix[3][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
     workingmatrix[0][8]=unsolvedmatrix[3][8];
     workingmatrix[1][0]=unsolvedmatrix[1][0];
     workingmatrix[1][1]=unsolvedmatrix[1][1];
@@ -501,6 +506,15 @@ void Cube::L() {
 };
 //function corresponding to rotating upper layer of cube (blue facing up) clockwise
 void Cube::U() {
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
     workingmatrix[1][0]=unsolvedmatrix[4][0];
     workingmatrix[1][1]=unsolvedmatrix[4][1];
     workingmatrix[1][2]=unsolvedmatrix[4][2];
