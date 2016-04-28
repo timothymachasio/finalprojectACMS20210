@@ -2797,6 +2797,7 @@ void Cube::IDDFS(int startdepth) {
     } while (depth<21);
     
     std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
+    std::exit(0);
     
 label:
     std::cout<<std::endl;
