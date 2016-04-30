@@ -5,7 +5,7 @@
 //A suggestion for a cube state you could input (whose optimal solution involves six moves) is one in which face 1 is bgbogrbgb, face 2 is wwywrywyy, face 3 is gbgrbogbg, face 4 is wwywoywyy, face 5 is rboryorgo, and face 6 is obrowrogr.
 
 #include "solver.hpp" //solver class
-#include "cube2.hpp"   //cube class  
+#include "cube.hpp"   //cube class  
 
 int main() {//We would just like to mention that we're so proud of how short the main() function is.
     
