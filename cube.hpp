@@ -1,35 +1,55 @@
+//this is the hpp for the Cube class, which instructs and validates
+//the user input and defines the moves performed on each Cube object
+
+#ifndef CUBE_H //inclusion guards to protect against multiple inclusions of the libraries
+#define CUBE_H
+
 #include <iostream>
 #include <algorithm>
 #include <string>
-#include <cstdlib>//this was included solely for the exit() function within the IDDFS function
-
-//This is the Cube class. Technically we could just have had a bunch of free functions operating on global variables, but we thought this would be neater
+#include <vector>
+#include <cstdlib>
+#include <ctime>
 
 class Cube {
     
     //MEMBER VARIABLES
     
-    //contains values for a solved cube. Never changes, hence 'const'
+    //values for a solved cube
     char const solvedmatrix[6][9] = {{'g','g','g','g','g','g','g','g','g'},{'r','r','r','r','r','r','r','r','r'},{'b','b','b','b','b','b','b','b','b'},{'o','o','o','o','o','o','o','o','o'},{'y','y','y','y','y','y','y','y','y'},{'w','w','w','w','w','w','w','w','w'}};
     
-    //holds new values for the unsolved matrix as moves are performed on the cube.
+    //buffer - holds new values for 'unsolvedmatrix' as moves are performed on the cube. Values are copied back to 'unsolvedmatrix' after every move (Refer to the functions R(),L(),U(),D() etc. to see how this works)
     char workingmatrix[6][9];
     
-    //keeps the initial values of the user-input cube. Changes as the functions (R, U, D, F etc.) run.
+    //Stores the state of the cube as functions L(), U(), R(), D() etc. run
     char unsolvedmatrix[6][9];
     
-    //keeps the values of the user-input cube intact, since the R(), U(), D() etc. functions distort the value of 'unsolvedmatrix' above.
+    //keeps original values of user-input cube. Copied back to 'unsolvedmatrix' after unsuccessful algorithms
     char originalmatrix[6][9];
     
 public:
-    
+    //Default Constructor - creates an blank instance of a cube
+    Cube(void)
+        {};
+
+    //Copy Constructor - copies the unsolvedmatrix cube into a new cube
+    Cube(const Cube* currentcube)
+    {
+        Setpath(currentcube -> path); //sets the path of the new cube equal to the path of the cube it is copied from
+        for(int i=0; i<6; i++){
+            for(int j=0; j<9; j++){
+                unsolvedmatrix[i][j] = currentcube -> unsolvedmatrix[i][j];
+            }
+        }
+    };
+   
     //MEMBER FUNCTIONS (Definitions are elsewhere)
     //1. INPUT FUNCTIONS. These enable the user to input the state of the cube.
-    //function creates instance of Rubik's Cube
+    //function accepts and validates user input regarding cube state (works ONLY after instance of class has been declared)
     void Create(void);
-    //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
+    //prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
     void Directions(int const& i);
-    //this function checks whether everything the user inputs is in the allowed alphabetical form
+    //checks whether everything the user inputs is in the allowed alphabetical form
     bool AllAllowedCharacters(std::string const& s);
     //this function converts a single digit (color code) and returns its corresponding color. Works hand in hand with 'Directions' function
     std::string Number2Color(int const& number);
@@ -38,8 +58,10 @@ public:
     //function turns the right face of the cube clockwise
     //This function checks to ensure the user is entering the right face of the cube
     bool IsCorrectFace (std::string const& userinput, int const& face);
+    //function checks whether the input state of the cube is valid
+    bool IsValidCube (void);
     
-    //2. CUBE MOVEMENT FUNCTIONS. These mimic the effects of turning a certain face of the cube in the manner shown.
+    //2. CUBE OPERATIONS. These mimic the effects of turning a certain face of the cube in the manner shown.
     //turns right face of cube clockwise
     void R(void);
     //function turns the left face of the cube clockwise
@@ -52,6 +74,7 @@ public:
     void F(void);
     //function turns the back face of the cube clockwise
     void B(void);
+    
     //these functions turn the cube faces anticlockwise
     void Ri(void);
     void Li(void);
@@ -59,6 +82,7 @@ public:
     void Di(void);
     void Fi(void);
     void Bi(void);
+    
     //these functions turn the associated face of the cube twice
     void R2(void);
     void L2(void);
@@ -70,30 +94,34 @@ public:
     
     //function converts a one-digit number into a function corresponding to a move (R,L,U,D,F,B etc)
     void numbertomove(char const& x);
-    //function prints the current state of the cube
-    void printcube(void);
-    //function takes in number representing move and prints out the corresponding move
-    void printmove(char const& x);
     //function checks whether cube is solved
     bool IsSolved(void);
     //function sets value of 'unsolvedmatrix' and originalmatrix. Works with 'for' loop in 'main' which provides value for int const& face
     void SetMatrices(int const& face, std::string const& s);
-    
-    //this function runs an unintelligent Iterative Deepening Depth First Search (IDDFS) starting from the the depth specified in its parameter
-    void IDDFS(int startdepth);
-    
-    
+    //reverses a move after it is performed
+    void undo_move(char i); 
+    //Attaches the move that was just preformed to the cube's path
+    void Addtopath(char x);
+    //Sets the cube's path to whatever is inputed in the function - used in the Copy Constructor
+    void Setpath(std::vector<char> path_);
+    //Returns the path of a specific cube
+    std::vector<char> Getpath(void);
+    //Vector that stores the path of current moves taken to get from the original cube to the current state of the cube
+    std::vector<char> path;  
 };
 
-//USER INPUT AND DATA VALIDATION FUNCTIONS
-
+//Runs the user input and validation sequence
 void Cube::Create() {
+    
+    goto entercube;
+    
+entercube:
     for (int i=0; i<6; i++) {
         
         std::string userinput;//this string holds the value of user-friendly input (a string)
         std::cout<<"Please enter the colors on the face of the cube with a "<<Number2Color(i)<<" center: "<<std::endl;
         std::cout<<std::endl;
-        Directions(i);//gives user directions on how to enter the state of the cube depending on which face is being asked for. Cool, right?
+        Directions(i);//gives user directions on how to enter the state of the cube depending on which face is being asked for.
         //Example (For face with red center-> corresponding to i=1). The function will print:
         //Now hold the cube such that the green center is facing down and the red center is facing you. Enter the colors on each cubie starting from the one on the top left and ending with the one on the bottom right. Read each row of colors from left to right, and enter the first row first, the second row second and the third row last.
         std::cout<<std::endl;;
@@ -110,15 +138,15 @@ void Cube::Create() {
         std::cin>>userinput;
         
         
-        //step 1 of input validation: ensure that user only enters alphabetic characters
-        while (!AllAllowedCharacters(userinput)) {
-            std::cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<std::endl;
+        //step 1 of input validation: ensure that user has entered nine colors for each side of the cube
+        while (!(userinput.size()==9)) {
+            std::cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<std::endl;
             std::cin>>userinput;//overwrites invalid values entered
         }
         
-        //step 2 of input validation: ensure that user has entered nine colors for each side of the cube
-        while (!(userinput.size()==9)) {
-            std::cout<<"What kind of Rubik's cube has a face with "<<userinput.size()<<" cubies? You must enter a series of nine characters, no more no less!"<<std::endl;
+        //step 2 of input validation: ensure that user only enters alphabetic characters
+        while (!AllAllowedCharacters(userinput)) {
+            std::cout<<"You entered some characters which are not allowed. You can only enter g, r, b, o, y or w. Please enter the colors again. Don't be creative!"<<std::endl;
             std::cin>>userinput;//overwrites invalid values entered
         }
         
@@ -129,18 +157,18 @@ void Cube::Create() {
             std::cin>>userinput;//overwrites the invalid values entered
         }
         
-        //step 4 of input validation: ask user to confirm their input
+        //step 4 of input validation: ask user to confirm their input for each face
         char valid;
         std::cout<<"You entered: "<<userinput<<std::endl;
-        std::cout<<"Is this correct? \nIf it isn't, the program may run for a very long time!"<<std::endl;
-        std::cout<<"Please enter n if not, or y (or anything else) if yes. Note that 'n' must be lowercase"<<std::endl;
+        std::cout<<"Is this correct?"<<std::endl;
+        std::cout<<"Enter 'n' if not, enter 'y' (or anything else) if yes. 'n' must be lowercase"<<std::endl;
         std::cin>>valid;
         while (valid=='n') {
             std::cout<<"Please enter the color values for the face with a "<<Number2Color(i)<<" center cubie again:"<<std::endl;
             std::cin>>userinput;//overwrites wrong input
         }
         
-        //feeds values of 'userinput' into Rubix instance of Cube
+        //feeds values of 'userinput' into instance of Cube
         
         SetMatrices(i,userinput);
         
@@ -149,11 +177,22 @@ void Cube::Create() {
         std::cout<<std::endl;
         std::cout<<std::endl;
     }
+    
+    /*
+    while (!IsValidCube()) {
+        
+        std::cout<<"The state of the cube you entered is not valid. Please enter the state of the cube again:"<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+        goto entercube;//make user input the state of the cube all over again
+    }
+    */
 }
+
+//USER INPUT AND DATA VALIDATION FUNCTIONS
 
 
 //This function prints out directions on how the user should input the state of the cube. It works in conjunction with the loop in main() that asks for user input, face by face.
-
 void Cube::Directions(int const& i) {
     switch (i) {
         case 0: {//corresponds to face with green center
@@ -191,6 +230,7 @@ bool Cube::AllAllowedCharacters(std::string const& s) {
     }
     return true;
 };
+
 //this function converts a single digit (color code) and returns its corresponding color
 std::string Cube::Number2Color(int const& number) {
     switch (number) {
@@ -217,6 +257,7 @@ std::string Cube::Number2Color(int const& number) {
         }
     }
 };
+
 //This function checks to ensure the user is entering the right face of the cube
 bool Cube::IsCorrectFace (std::string const& userinput, int const& face) {
     if (Letter2Digit(userinput.at(4))==face) {//checks to see whether fourth element corresponds to the face the program is asking for
@@ -224,6 +265,63 @@ bool Cube::IsCorrectFace (std::string const& userinput, int const& face) {
     } else {
         return false;
     }
+};
+
+//This function will ensure that the state of the entire cube the user inputs is valid
+bool Cube::IsValidCube(void) {
+    
+    bool edgescorrect = false;
+    bool cornerscorrect = false;
+    
+    //stores colors on edgepieces of input rubik's cube
+    std::vector<std::vector<char>> const edges ={{unsolvedmatrix[0][1],unsolvedmatrix[1][7]},{unsolvedmatrix[1][1],unsolvedmatrix[2][7]},{unsolvedmatrix[2][1],unsolvedmatrix[3][7]},{unsolvedmatrix[3][1],unsolvedmatrix[0][7]},{unsolvedmatrix[0][3],unsolvedmatrix[5][7]},{unsolvedmatrix[1][3],unsolvedmatrix[5][5]},{unsolvedmatrix[2][3],unsolvedmatrix[5][1]},{unsolvedmatrix[5][3],unsolvedmatrix[3][3]},{unsolvedmatrix[0][5],unsolvedmatrix[4][7]},{unsolvedmatrix[1][5],unsolvedmatrix[4][3]},{unsolvedmatrix[2][5],unsolvedmatrix[4][1]},{unsolvedmatrix[3][5],unsolvedmatrix[4][5]}};
+    std::vector<std::vector<int>> const rightedges = {{'g','r'},{'g','y'},{'g','o'},{'g','w'},{'b','r'},{'b','w'},{'b','o'},{'b','y'},{'r','w'},{'r','y'},{'o','w'},{'o','y'}};
+    //keeps values of valid vector indices
+    std::vector<int> foundedges;
+    
+    for (int i=0;i<edges.size();i++) {
+        for (int j=0;j<rightedges.size();j++) {
+            if (std::is_permutation(edges[i].begin(),edges[i].end(),rightedges[j].begin())) {
+                foundedges.push_back(i);//pushes to 'foundedges' position of valid vector combination. If all values of edges are correct, this vector will contain all values from 0 to (edges.size()-1)
+            }
+        }
+    }
+    //stores values for all vector positions that should be found to be valid before user input can be accepted. Ensures that no position features more than once
+    std::vector<int> const shouldbefoundedges = {0,1,2,3,4,5,6,7,8,9,10,11};
+    
+    if (std::is_permutation(foundedges.begin(),foundedges.end(),shouldbefoundedges.begin())) {
+        edgescorrect = true;//changes value of edgescorrect to 'true'. Must be 'true' for cube state to be accepted
+    }
+    
+    
+    
+    //holds values of corner pieces entered by the user
+    std::vector<std::vector<char>> const corners={{unsolvedmatrix[0][0],unsolvedmatrix[1][6],unsolvedmatrix[5][8]},{unsolvedmatrix[0][8],unsolvedmatrix[1][8],unsolvedmatrix[4][6]},{unsolvedmatrix[0][6],unsolvedmatrix[5][6],unsolvedmatrix[3][8]},{unsolvedmatrix[0][8],unsolvedmatrix[4][8],unsolvedmatrix[3][6]},{unsolvedmatrix[2][0],unsolvedmatrix[5][0],unsolvedmatrix[3][6]},{unsolvedmatrix[2][2],unsolvedmatrix[4][2],unsolvedmatrix[3][8]},{unsolvedmatrix[2][6],unsolvedmatrix[1][0],unsolvedmatrix[5][2]},{unsolvedmatrix[2][8],unsolvedmatrix[1][2],unsolvedmatrix[4][0]}};
+    //holds correct possible values of corner pieces
+    std::vector<std::vector<char>> rightcorners = {{'g','r','w'},{'g','r','y'},{'g','y','o'},{'g','o','w'},{'b','r','w'},{'b','w','o'},{'b','o','y'},{'b','r','y'}};
+    //keeps values of valid vector indices enters by the user. Will keep values from 0 through 7
+    std::vector<int> foundcorners;
+    
+    for (int i=0;i<corners.size();i++) {
+        for (int j=0;j<rightcorners.size();j++) {
+            if (std::is_permutation(corners[i].begin(),corners[i].end(),rightcorners[j].begin())) {
+                foundcorners.push_back(i);//pushes to 'foundcorners' position of valid vector combination. If all values of corners are correct, this vector will contain all values from 0 to (corners.size()-1)
+            }
+        }
+    }
+    //contains arbitrary permutation of figures that should be in 'foundcorners' if all corners are positioned correctly
+    std::vector<int> shouldbefoundcorners = {0,1,2,3,4,5,6,7};
+    
+    if (std::is_permutation(foundcorners.begin(),foundcorners.end(),shouldbefoundcorners.begin())) {
+        cornerscorrect = true;//changes value of cornerscorrect to 'true'. Must be 'true' for cube state to be accepted.
+    }
+    
+    if (edgescorrect&&cornerscorrect) {
+        return true;
+    } else {
+        return false;
+    }
+    
 };
 
 //works in conjunction with IsCorrectFace function (see above)
@@ -650,30 +748,770 @@ void Cube::B() {
     }
 };
 
+//these functions turn the cube faces anticlockwise
+void Cube::Ri(void) {
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[1][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[1][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[1][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[2][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[2][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[2][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[3][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[3][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[3][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[0][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[0][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[0][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][2];
+    workingmatrix[4][1]=unsolvedmatrix[4][5];
+    workingmatrix[4][2]=unsolvedmatrix[4][8];
+    workingmatrix[4][3]=unsolvedmatrix[4][1];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][7];
+    workingmatrix[4][6]=unsolvedmatrix[4][0];
+    workingmatrix[4][7]=unsolvedmatrix[4][3];
+    workingmatrix[4][8]=unsolvedmatrix[4][6];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+
+void Cube::Li(void) {
+    workingmatrix[0][0]=unsolvedmatrix[3][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[3][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[3][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[0][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[0][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[0][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[1][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[1][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[1][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[2][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[2][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[2][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][2];
+    workingmatrix[5][1]=unsolvedmatrix[5][5];
+    workingmatrix[5][2]=unsolvedmatrix[5][8];
+    workingmatrix[5][3]=unsolvedmatrix[5][1];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][7];
+    workingmatrix[5][6]=unsolvedmatrix[5][0];
+    workingmatrix[5][7]=unsolvedmatrix[5][3];
+    workingmatrix[5][8]=unsolvedmatrix[5][6];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+
+void Cube::Ui(void) {
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[5][0];
+    workingmatrix[1][1]=unsolvedmatrix[5][1];
+    workingmatrix[1][2]=unsolvedmatrix[5][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][2];
+    workingmatrix[2][1]=unsolvedmatrix[2][5];
+    workingmatrix[2][2]=unsolvedmatrix[2][8];
+    workingmatrix[2][3]=unsolvedmatrix[2][1];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][7];
+    workingmatrix[2][6]=unsolvedmatrix[2][0];
+    workingmatrix[2][7]=unsolvedmatrix[2][3];
+    workingmatrix[2][8]=unsolvedmatrix[2][6];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[4][2];
+    workingmatrix[3][7]=unsolvedmatrix[4][1];
+    workingmatrix[3][8]=unsolvedmatrix[4][0];
+    workingmatrix[4][0]=unsolvedmatrix[1][0];
+    workingmatrix[4][1]=unsolvedmatrix[1][1];
+    workingmatrix[4][2]=unsolvedmatrix[1][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[3][8];
+    workingmatrix[5][1]=unsolvedmatrix[3][7];
+    workingmatrix[5][2]=unsolvedmatrix[3][6];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+
+void Cube::Di(void) {
+    workingmatrix[0][0]=unsolvedmatrix[0][2];
+    workingmatrix[0][1]=unsolvedmatrix[0][5];
+    workingmatrix[0][2]=unsolvedmatrix[0][8];
+    workingmatrix[0][3]=unsolvedmatrix[0][1];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][7];
+    workingmatrix[0][6]=unsolvedmatrix[0][0];
+    workingmatrix[0][7]=unsolvedmatrix[0][3];
+    workingmatrix[0][8]=unsolvedmatrix[0][6];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[4][6];
+    workingmatrix[1][7]=unsolvedmatrix[4][7];
+    workingmatrix[1][8]=unsolvedmatrix[4][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[5][8];
+    workingmatrix[3][1]=unsolvedmatrix[5][7];
+    workingmatrix[3][2]=unsolvedmatrix[5][6];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[3][2];
+    workingmatrix[4][7]=unsolvedmatrix[3][1];
+    workingmatrix[4][8]=unsolvedmatrix[3][0];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[1][6];
+    workingmatrix[5][7]=unsolvedmatrix[1][7];
+    workingmatrix[5][8]=unsolvedmatrix[1][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+void Cube::Fi(void) {
+    workingmatrix[0][0]=unsolvedmatrix[5][2];
+    workingmatrix[0][1]=unsolvedmatrix[5][5];
+    workingmatrix[0][2]=unsolvedmatrix[5][8];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][2];
+    workingmatrix[1][1]=unsolvedmatrix[1][5];
+    workingmatrix[1][2]=unsolvedmatrix[1][8];
+    workingmatrix[1][3]=unsolvedmatrix[1][1];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][7];
+    workingmatrix[1][6]=unsolvedmatrix[1][0];
+    workingmatrix[1][7]=unsolvedmatrix[1][3];
+    workingmatrix[1][8]=unsolvedmatrix[1][6];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[4][0];
+    workingmatrix[2][7]=unsolvedmatrix[4][3];
+    workingmatrix[2][8]=unsolvedmatrix[4][6];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[0][2];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[0][1];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[0][0];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[2][8];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[2][7];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[2][6];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+
+void Cube::Bi(void) {
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[4][8];
+    workingmatrix[0][7]=unsolvedmatrix[4][5];
+    workingmatrix[0][8]=unsolvedmatrix[4][2];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[5][6];
+    workingmatrix[2][1]=unsolvedmatrix[5][3];
+    workingmatrix[2][2]=unsolvedmatrix[5][0];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][2];
+    workingmatrix[3][1]=unsolvedmatrix[3][5];
+    workingmatrix[3][2]=unsolvedmatrix[3][8];
+    workingmatrix[3][3]=unsolvedmatrix[3][1];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][7];
+    workingmatrix[3][6]=unsolvedmatrix[3][0];
+    workingmatrix[3][7]=unsolvedmatrix[3][3];
+    workingmatrix[3][8]=unsolvedmatrix[3][6];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[2][0];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[2][1];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[2][2];
+    workingmatrix[5][0]=unsolvedmatrix[0][6];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[0][7];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[0][8];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
+    
+};
+
 //these functions turn the associated face of the cube twice
 void Cube::R2(void) {
-    R();
-    R();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[2][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[2][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[2][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[3][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[3][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[3][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[0][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[0][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[0][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[1][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[1][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[1][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][8];
+    workingmatrix[4][1]=unsolvedmatrix[4][7];
+    workingmatrix[4][2]=unsolvedmatrix[4][6];
+    workingmatrix[4][3]=unsolvedmatrix[4][5];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][3];
+    workingmatrix[4][6]=unsolvedmatrix[4][2];
+    workingmatrix[4][7]=unsolvedmatrix[4][1];
+    workingmatrix[4][8]=unsolvedmatrix[4][0];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
 void Cube::L2(void) {
-    L();
-    L();
+    workingmatrix[0][0]=unsolvedmatrix[2][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[2][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[2][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[3][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[3][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[3][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[0][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[0][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[0][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[1][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[1][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[1][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][8];
+    workingmatrix[5][1]=unsolvedmatrix[5][7];
+    workingmatrix[5][2]=unsolvedmatrix[5][6];
+    workingmatrix[5][3]=unsolvedmatrix[5][5];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][3];
+    workingmatrix[5][6]=unsolvedmatrix[5][2];
+    workingmatrix[5][7]=unsolvedmatrix[5][1];
+    workingmatrix[5][8]=unsolvedmatrix[5][0];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
 void Cube::U2(void) {
-    U();
-    U();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[3][8];
+    workingmatrix[1][1]=unsolvedmatrix[3][7];
+    workingmatrix[1][2]=unsolvedmatrix[3][6];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[2][8];
+    workingmatrix[2][1]=unsolvedmatrix[2][7];
+    workingmatrix[2][2]=unsolvedmatrix[2][6];
+    workingmatrix[2][3]=unsolvedmatrix[2][5];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][3];
+    workingmatrix[2][6]=unsolvedmatrix[2][2];
+    workingmatrix[2][7]=unsolvedmatrix[2][1];
+    workingmatrix[2][8]=unsolvedmatrix[2][0];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[1][2];
+    workingmatrix[3][7]=unsolvedmatrix[1][1];
+    workingmatrix[3][8]=unsolvedmatrix[1][0];
+    workingmatrix[4][0]=unsolvedmatrix[5][0];
+    workingmatrix[4][1]=unsolvedmatrix[5][1];
+    workingmatrix[4][2]=unsolvedmatrix[5][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[4][0];
+    workingmatrix[5][1]=unsolvedmatrix[4][1];
+    workingmatrix[5][2]=unsolvedmatrix[4][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
+//continue from here
+
 void Cube::D2(void) {
-    D();
-    D();
+    workingmatrix[0][0]=unsolvedmatrix[0][8];
+    workingmatrix[0][1]=unsolvedmatrix[0][7];
+    workingmatrix[0][2]=unsolvedmatrix[0][6];
+    workingmatrix[0][3]=unsolvedmatrix[0][5];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][3];
+    workingmatrix[0][6]=unsolvedmatrix[0][2];
+    workingmatrix[0][7]=unsolvedmatrix[0][1];
+    workingmatrix[0][8]=unsolvedmatrix[0][0];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[3][2];
+    workingmatrix[1][7]=unsolvedmatrix[3][1];
+    workingmatrix[1][8]=unsolvedmatrix[3][0];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[1][8];
+    workingmatrix[3][1]=unsolvedmatrix[1][7];
+    workingmatrix[3][2]=unsolvedmatrix[1][6];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[5][6];
+    workingmatrix[4][7]=unsolvedmatrix[5][7];
+    workingmatrix[4][8]=unsolvedmatrix[5][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[4][6];
+    workingmatrix[5][7]=unsolvedmatrix[4][7];
+    workingmatrix[5][8]=unsolvedmatrix[4][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
+
+//THERE IS A PROBLEM HERE
+
 void Cube::F2(void) {
-    F();
-    F();
+    workingmatrix[0][0]=unsolvedmatrix[2][8];
+    workingmatrix[0][1]=unsolvedmatrix[2][7];
+    workingmatrix[0][2]=unsolvedmatrix[2][6];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[0][6];
+    workingmatrix[0][7]=unsolvedmatrix[0][7];
+    workingmatrix[0][8]=unsolvedmatrix[0][8];
+    workingmatrix[1][0]=unsolvedmatrix[1][8];
+    workingmatrix[1][1]=unsolvedmatrix[1][7];
+    workingmatrix[1][2]=unsolvedmatrix[1][6];
+    workingmatrix[1][3]=unsolvedmatrix[1][5];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][3];
+    workingmatrix[1][6]=unsolvedmatrix[1][2];
+    workingmatrix[1][7]=unsolvedmatrix[1][1];
+    workingmatrix[1][8]=unsolvedmatrix[1][0];
+    workingmatrix[2][0]=unsolvedmatrix[2][0];
+    workingmatrix[2][1]=unsolvedmatrix[2][1];
+    workingmatrix[2][2]=unsolvedmatrix[2][2];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[0][2];
+    workingmatrix[2][7]=unsolvedmatrix[0][1];
+    workingmatrix[2][8]=unsolvedmatrix[0][0];
+    workingmatrix[3][0]=unsolvedmatrix[3][0];
+    workingmatrix[3][1]=unsolvedmatrix[3][1];
+    workingmatrix[3][2]=unsolvedmatrix[3][2];
+    workingmatrix[3][3]=unsolvedmatrix[3][3];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][5];
+    workingmatrix[3][6]=unsolvedmatrix[3][6];
+    workingmatrix[3][7]=unsolvedmatrix[3][7];
+    workingmatrix[3][8]=unsolvedmatrix[3][8];
+    workingmatrix[4][0]=unsolvedmatrix[5][8];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[4][2];
+    workingmatrix[4][3]=unsolvedmatrix[5][5];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[4][5];
+    workingmatrix[4][6]=unsolvedmatrix[5][2];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[4][8];
+    workingmatrix[5][0]=unsolvedmatrix[5][0];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[4][6];
+    workingmatrix[5][3]=unsolvedmatrix[5][3];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[4][3];
+    workingmatrix[5][6]=unsolvedmatrix[5][6];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[4][0];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
 void Cube::B2(void) {
-    B();
-    B();
+    workingmatrix[0][0]=unsolvedmatrix[0][0];
+    workingmatrix[0][1]=unsolvedmatrix[0][1];
+    workingmatrix[0][2]=unsolvedmatrix[0][2];
+    workingmatrix[0][3]=unsolvedmatrix[0][3];
+    workingmatrix[0][4]=unsolvedmatrix[0][4];
+    workingmatrix[0][5]=unsolvedmatrix[0][5];
+    workingmatrix[0][6]=unsolvedmatrix[2][2];
+    workingmatrix[0][7]=unsolvedmatrix[2][1];
+    workingmatrix[0][8]=unsolvedmatrix[2][0];
+    workingmatrix[1][0]=unsolvedmatrix[1][0];
+    workingmatrix[1][1]=unsolvedmatrix[1][1];
+    workingmatrix[1][2]=unsolvedmatrix[1][2];
+    workingmatrix[1][3]=unsolvedmatrix[1][3];
+    workingmatrix[1][4]=unsolvedmatrix[1][4];
+    workingmatrix[1][5]=unsolvedmatrix[1][5];
+    workingmatrix[1][6]=unsolvedmatrix[1][6];
+    workingmatrix[1][7]=unsolvedmatrix[1][7];
+    workingmatrix[1][8]=unsolvedmatrix[1][8];
+    workingmatrix[2][0]=unsolvedmatrix[0][8];
+    workingmatrix[2][1]=unsolvedmatrix[0][7];
+    workingmatrix[2][2]=unsolvedmatrix[0][6];
+    workingmatrix[2][3]=unsolvedmatrix[2][3];
+    workingmatrix[2][4]=unsolvedmatrix[2][4];
+    workingmatrix[2][5]=unsolvedmatrix[2][5];
+    workingmatrix[2][6]=unsolvedmatrix[2][6];
+    workingmatrix[2][7]=unsolvedmatrix[2][7];
+    workingmatrix[2][8]=unsolvedmatrix[2][8];
+    workingmatrix[3][0]=unsolvedmatrix[3][8];
+    workingmatrix[3][1]=unsolvedmatrix[3][7];
+    workingmatrix[3][2]=unsolvedmatrix[3][6];
+    workingmatrix[3][3]=unsolvedmatrix[3][5];
+    workingmatrix[3][4]=unsolvedmatrix[3][4];
+    workingmatrix[3][5]=unsolvedmatrix[3][3];
+    workingmatrix[3][6]=unsolvedmatrix[3][2];
+    workingmatrix[3][7]=unsolvedmatrix[3][1];
+    workingmatrix[3][8]=unsolvedmatrix[3][0];
+    workingmatrix[4][0]=unsolvedmatrix[4][0];
+    workingmatrix[4][1]=unsolvedmatrix[4][1];
+    workingmatrix[4][2]=unsolvedmatrix[5][6];
+    workingmatrix[4][3]=unsolvedmatrix[4][3];
+    workingmatrix[4][4]=unsolvedmatrix[4][4];
+    workingmatrix[4][5]=unsolvedmatrix[5][3];
+    workingmatrix[4][6]=unsolvedmatrix[4][6];
+    workingmatrix[4][7]=unsolvedmatrix[4][7];
+    workingmatrix[4][8]=unsolvedmatrix[5][0];
+    workingmatrix[5][0]=unsolvedmatrix[4][8];
+    workingmatrix[5][1]=unsolvedmatrix[5][1];
+    workingmatrix[5][2]=unsolvedmatrix[5][2];
+    workingmatrix[5][3]=unsolvedmatrix[4][5];
+    workingmatrix[5][4]=unsolvedmatrix[5][4];
+    workingmatrix[5][5]=unsolvedmatrix[5][5];
+    workingmatrix[5][6]=unsolvedmatrix[4][2];
+    workingmatrix[5][7]=unsolvedmatrix[5][7];
+    workingmatrix[5][8]=unsolvedmatrix[5][8];
+    
+    for (int i=0;i<6;i++) {
+        for (int j=0;j<9;j++) {
+            unsolvedmatrix[i][j]=workingmatrix[i][j];
+        }
+    }
 };
 
 bool Cube::IsSolved() {
@@ -727,1189 +1565,107 @@ void Cube::numbertomove(char const& x) {
         } case 'l': {
             B2();
             break;
+        } case 'm': {
+            Li();
+            break;
+        } case 'n': {
+            Ri();
+            break;
+        } case 'o': {
+            Ui();
+            break;
+        } case 'p': {
+            Di();
+            break;
+        } case 'q': {
+            Fi();
+            break;
+        } case 'r': {
+            Bi();
+            break;
         } default: {
-            std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
+            break;
+            //std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
         }
     }
     
 };
 
-void Cube::printmove(char const& x) {
-    
-    switch(x) {
-        case 'a': {
-            std::cout<<" Left face clockwise "<<std::endl;
+//function to reverse the move that was just performed
+void Cube::undo_move(char i){
+    switch(i){
+        case 'a':{
+            Li();
             break;
-        } case 'b' : {
-            std::cout<<" Right face clockwise"<<std::endl;
+        }case 'b':{
+            Ri();
             break;
-        } case 'c' : {
-            std::cout<<" Upper face clockwise"<<std::endl;
+        }case 'c':{
+            Ui();
             break;
-        } case 'd' : {
-            std::cout<<" Lower face clockwise "<<std::endl;
+        }case 'd':{
+            Di();
             break;
-        } case 'e' : {
-            std::cout<<" Front face clockwise"<<std::endl;
+        }case 'e':{
+            Fi();
             break;
-        } case 'f' : {
-            std::cout<<" Back face clockwise "<<std::endl;
+        }case 'f':{
+            Bi();
             break;
-        } case 'g' : {
-            std::cout<<" Left face clockwise (twice) "<<std::endl;
+        }case 'g':{
+            L2();
             break;
-        } case 'h' : {
-            std::cout<<" Right face clockwise (twice) "<<std::endl;
+        }case 'h':{
+            R2();
             break;
-        } case 'i' : {
-            std::cout<<" Upper face clockwise (twice) "<<std::endl;
+        }case 'i':{
+            U2();
             break;
-        } case 'j' : {
-            std::cout<<" Lower face clockwise (twice) "<<std::endl;
+        }case 'j':{
+            D2();
             break;
-        } case 'k' : {
-            std::cout<<" Front face clockwise (twice) "<<std::endl;
+        }case 'k':{
+            F2();
             break;
-        } case 'l' : {
-            std::cout<<" Back face clockwise (twice) "<<std::endl;
+        }case 'l':{
+            B2();
             break;
-        }default : {
-            std::cout<<"If this prints, there's a problem where the 'printmove' function is called"<<std::endl;
+        }case 'm':{
+            L();
+            break;
+        }case 'n':{
+            R();
+            break;
+        }case 'o':{
+            U();
+            break;
+        }case 'p':{
+            D();
+            break;
+        }case 'q':{
+            F();
+            break;
+        }case 'r':{
+            B();
+            break;
         }
-    }
-}
 
-//this function prints out the current state of the cube
-void Cube::printcube() {
-    
-    for (int i=0;i<6;i++) {
-        for (int j=0;j<9;j++) {
-            std::cout<<unsolvedmatrix[i][j];
-        }
-        std::cout<<std::endl;
     }
+};  
+
+//Attaches the move that was just preformed to the cube's path
+void Cube::Addtopath(char x){
+    path.push_back(x);
 };
 
+//Sets the cube's path to whatever is inputed in the function - used in the Copy Constructor
+void Cube::Setpath(std::vector<char> path_){
+    path = path_;
+};
 
-//this is the 'big bad function' - a function which runs the iterative deepening depth-first search. There were way more elegant ways of implementing this, but a bunch of for loops actually ended up being the easiest to write and fastest to implement.
+//Returns the path of a specific cube
+std::vector<char> Cube::Getpath(void){
+    return path;
+};
 
-void Cube::IDDFS(int startdepth) {
-    int depth = startdepth;
-    
-    do {
-        if (depth==1) {
-            for (char a='a';a<'a'+12;a++) {
-                numbertomove(a);//tries all possible combinations of one move.
-                if (IsSolved()) {
-                    std::cout<<"Solved! Steps for solving: "<<std::endl;
-                    printmove(a);
-                    goto label;//label prints out instructions on how the cube should be solved using the generated moves and exits the program.
-                } else {
-                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                        for (int j=0;j<9;j++) {
-                            unsolvedmatrix[i][j]=originalmatrix[i][j];
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;//You know, just to make sure the user knows what's going on.
-            IDDFS(depth+1);//RECURSION. See for every other series of nested loops below. Will only run if solution is not found.
-        } else if (depth==2) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    numbertomove(a);
-                    numbertomove(b);//tries all possible combinations of two moves. The next series of nested for loops test all possible combinations of three moves etc.
-                    if (IsSolved()) {
-                        std::cout<<"Solved! Steps for solving: "<<std::endl;
-                        printmove(a);
-                        printmove(b);
-                        goto label;
-                    }else {
-                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                            for (int j=0;j<9;j++) {
-                                unsolvedmatrix[i][j]=originalmatrix[i][j];
-                            }
-                        }
-                    }
-                    
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==3) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        numbertomove(a);
-                        numbertomove(b);
-                        numbertomove(c);
-                        
-                        if (IsSolved()) {
-                            std::cout<<"Solved! Steps for solving: "<<std::endl;
-                            printmove(a);
-                            printmove(b);
-                            printmove(c);
-                            goto label;
-                        } else {
-                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                for (int j=0;j<9;j++) {
-                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==4) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            numbertomove(a);
-                            numbertomove(b);
-                            numbertomove(c);
-                            numbertomove(d);
-                            if (IsSolved()) {
-                                std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                printmove(a);
-                                printmove(b);
-                                printmove(c);
-                                printmove(d);
-                                goto label;
-                            } else {
-                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                    for (int j=0;j<9;j++) {
-                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==5) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                numbertomove(a);
-                                numbertomove(b);
-                                numbertomove(c);
-                                numbertomove(d);
-                                numbertomove(e);
-                                if (IsSolved()) {
-                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                    printmove(a);
-                                    printmove(b);
-                                    printmove(c);
-                                    printmove(d);
-                                    printmove(e);
-                                    goto label;
-                                } else {
-                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                        for (int j=0;j<9;j++) {
-                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==6) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    numbertomove(a);
-                                    numbertomove(b);
-                                    numbertomove(c);
-                                    numbertomove(d);
-                                    numbertomove(e);
-                                    numbertomove(f);
-                                    if (IsSolved()) {
-                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                        printmove(a);
-                                        printmove(b);
-                                        printmove(c);
-                                        printmove(d);
-                                        printmove(e);
-                                        printmove(f);
-                                        goto label;
-                                    } else {
-                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                            for (int j=0;j<9;j++) {
-                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                            }
-                                        }
-                                    }
-                                    
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==7) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        numbertomove(a);
-                                        numbertomove(b);
-                                        numbertomove(c);
-                                        numbertomove(d);
-                                        numbertomove(e);
-                                        numbertomove(f);
-                                        numbertomove(g);
-                                        if (IsSolved()) {
-                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                            printmove(a);
-                                            printmove(b);
-                                            printmove(c);
-                                            printmove(d);
-                                            printmove(e);
-                                            printmove(f);
-                                            printmove(g);
-                                            goto label;
-                                        } else {
-                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                for (int j=0;j<9;j++) {
-                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==8) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            numbertomove(a);
-                                            numbertomove(b);
-                                            numbertomove(c);
-                                            numbertomove(d);
-                                            numbertomove(e);
-                                            numbertomove(f);
-                                            numbertomove(g);
-                                            numbertomove(h);
-                                            if (IsSolved()) {
-                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                printmove(a);
-                                                printmove(b);
-                                                printmove(c);
-                                                printmove(d);
-                                                printmove(e);
-                                                printmove(f);
-                                                printmove(g);
-                                                printmove(h);
-                                                goto label;
-                                            } else {
-                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                    for (int j=0;j<9;j++) {
-                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==9) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<='a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                numbertomove(a);
-                                                numbertomove(b);
-                                                numbertomove(c);
-                                                numbertomove(d);
-                                                numbertomove(e);
-                                                numbertomove(f);
-                                                numbertomove(g);
-                                                numbertomove(h);
-                                                numbertomove(i);
-                                                if (IsSolved()) {
-                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                    printmove(a);
-                                                    printmove(b);
-                                                    printmove(c);
-                                                    printmove(d);
-                                                    printmove(e);
-                                                    printmove(f);
-                                                    printmove(g);
-                                                    printmove(h);
-                                                    printmove(i);
-                                                    goto label;
-                                                } else {
-                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                        for (int j=0;j<9;j++) {
-                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==10) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    numbertomove(a);
-                                                    numbertomove(b);
-                                                    numbertomove(c);
-                                                    numbertomove(d);
-                                                    numbertomove(e);
-                                                    numbertomove(f);
-                                                    numbertomove(g);
-                                                    numbertomove(h);
-                                                    numbertomove(i);
-                                                    numbertomove(j);
-                                                    if (IsSolved()) {
-                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                        printmove(a);
-                                                        printmove(b);
-                                                        printmove(c);
-                                                        printmove(d);
-                                                        printmove(e);
-                                                        printmove(f);
-                                                        printmove(g);
-                                                        printmove(h);
-                                                        printmove(i);
-                                                        printmove(j);
-                                                        goto label;
-                                                    }  else {
-                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                            for (int j=0;j<9;j++) {
-                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                            }
-                                                        }
-                                                    }                                               }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==11) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        numbertomove(a);
-                                                        numbertomove(b);
-                                                        numbertomove(c);
-                                                        numbertomove(d);
-                                                        numbertomove(e);
-                                                        numbertomove(f);
-                                                        numbertomove(g);
-                                                        numbertomove(h);
-                                                        numbertomove(i);
-                                                        numbertomove(j);
-                                                        numbertomove(k);
-                                                        if (IsSolved()) {
-                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                            printmove(a);
-                                                            printmove(b);
-                                                            printmove(c);
-                                                            printmove(d);
-                                                            printmove(e);
-                                                            printmove(f);
-                                                            printmove(g);
-                                                            printmove(h);
-                                                            printmove(i);
-                                                            printmove(j);
-                                                            printmove(k);
-                                                            goto label;
-                                                        } else {
-                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                for (int j=0;j<9;j++) {
-                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                }
-                                                            }
-                                                        }
-                                                        
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==12) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            numbertomove(a);
-                                                            numbertomove(b);
-                                                            numbertomove(c);
-                                                            numbertomove(d);
-                                                            numbertomove(e);
-                                                            numbertomove(f);
-                                                            numbertomove(g);
-                                                            numbertomove(h);
-                                                            numbertomove(i);
-                                                            numbertomove(j);
-                                                            numbertomove(k);
-                                                            numbertomove(l);
-                                                            if (IsSolved()) {
-                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                printmove(a);
-                                                                printmove(b);
-                                                                printmove(c);
-                                                                printmove(d);
-                                                                printmove(e);
-                                                                printmove(f);
-                                                                printmove(g);
-                                                                printmove(h);
-                                                                printmove(i);
-                                                                printmove(j);
-                                                                printmove(k);
-                                                                printmove(l);
-                                                                goto label;
-                                                            } else {
-                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                    for (int j=0;j<9;j++) {
-                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                    }
-                                                                }
-                                                            }
-                                                            
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==13) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                numbertomove(a);
-                                                                numbertomove(b);
-                                                                numbertomove(c);
-                                                                numbertomove(d);
-                                                                numbertomove(e);
-                                                                numbertomove(f);
-                                                                numbertomove(g);
-                                                                numbertomove(h);
-                                                                numbertomove(i);
-                                                                numbertomove(j);
-                                                                numbertomove(k);
-                                                                numbertomove(l);
-                                                                numbertomove(m);
-                                                                if (IsSolved()) {
-                                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                    printmove(a);
-                                                                    printmove(b);
-                                                                    printmove(c);
-                                                                    printmove(d);
-                                                                    printmove(e);
-                                                                    printmove(f);
-                                                                    printmove(g);
-                                                                    printmove(h);
-                                                                    printmove(i);
-                                                                    printmove(j);
-                                                                    printmove(k);
-                                                                    printmove(l);
-                                                                    printmove(m);
-                                                                    goto label;
-                                                                } else {
-                                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                        for (int j=0;j<9;j++) {
-                                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==14) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    numbertomove(a);
-                                                                    numbertomove(b);
-                                                                    numbertomove(c);
-                                                                    numbertomove(d);
-                                                                    numbertomove(e);
-                                                                    numbertomove(f);
-                                                                    numbertomove(g);
-                                                                    numbertomove(h);
-                                                                    numbertomove(i);
-                                                                    numbertomove(j);
-                                                                    numbertomove(k);
-                                                                    numbertomove(l);
-                                                                    numbertomove(m);
-                                                                    numbertomove(n);
-                                                                    if (IsSolved()) {
-                                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                        printmove(a);
-                                                                        printmove(b);
-                                                                        printmove(c);
-                                                                        printmove(d);
-                                                                        printmove(e);
-                                                                        printmove(f);
-                                                                        printmove(g);
-                                                                        printmove(h);
-                                                                        printmove(i);
-                                                                        printmove(j);
-                                                                        printmove(k);
-                                                                        printmove(l);
-                                                                        printmove(m);
-                                                                        printmove(n);
-                                                                        goto label;
-                                                                    } else {
-                                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                            for (int j=0;j<9;j++) {
-                                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==15) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        numbertomove(a);
-                                                                        numbertomove(b);
-                                                                        numbertomove(c);
-                                                                        numbertomove(d);
-                                                                        numbertomove(e);
-                                                                        numbertomove(f);
-                                                                        numbertomove(g);
-                                                                        numbertomove(h);
-                                                                        numbertomove(i);
-                                                                        numbertomove(j);
-                                                                        numbertomove(k);
-                                                                        numbertomove(l);
-                                                                        numbertomove(m);
-                                                                        numbertomove(n);
-                                                                        numbertomove(o);
-                                                                        if (IsSolved()) {
-                                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                            printmove(a);
-                                                                            printmove(b);
-                                                                            printmove(c);
-                                                                            printmove(d);
-                                                                            printmove(e);
-                                                                            printmove(f);
-                                                                            printmove(g);
-                                                                            printmove(h);
-                                                                            printmove(i);
-                                                                            printmove(j);
-                                                                            printmove(k);
-                                                                            printmove(l);
-                                                                            printmove(m);
-                                                                            printmove(n);
-                                                                            printmove(o);
-                                                                            goto label;
-                                                                        } else {
-                                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                for (int j=0;j<9;j++) {
-                                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==16) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        for (char p='a';p<'a'+12;p++) {
-                                                                            numbertomove(a);
-                                                                            numbertomove(b);
-                                                                            numbertomove(c);
-                                                                            numbertomove(d);
-                                                                            numbertomove(e);
-                                                                            numbertomove(f);
-                                                                            numbertomove(g);
-                                                                            numbertomove(h);
-                                                                            numbertomove(i);
-                                                                            numbertomove(j);
-                                                                            numbertomove(k);
-                                                                            numbertomove(l);
-                                                                            numbertomove(m);
-                                                                            numbertomove(n);
-                                                                            numbertomove(o);
-                                                                            numbertomove(p);
-                                                                            if (IsSolved()) {
-                                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                                printmove(a);
-                                                                                printmove(b);
-                                                                                printmove(c);
-                                                                                printmove(d);
-                                                                                printmove(e);
-                                                                                printmove(f);
-                                                                                printmove(g);
-                                                                                printmove(h);
-                                                                                printmove(i);
-                                                                                printmove(j);
-                                                                                printmove(k);
-                                                                                printmove(l);
-                                                                                printmove(m);
-                                                                                printmove(n);
-                                                                                printmove(o);
-                                                                                printmove(p);
-                                                                                goto label;
-                                                                            } else {
-                                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                    for (int j=0;j<9;j++) {
-                                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==17) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        for (char p='a';p<'a'+12;p++) {
-                                                                            for (char q='a';q<'a'+12;q++) {
-                                                                                numbertomove(a);
-                                                                                numbertomove(b);
-                                                                                numbertomove(c);
-                                                                                numbertomove(d);
-                                                                                numbertomove(e);
-                                                                                numbertomove(f);
-                                                                                numbertomove(g);
-                                                                                numbertomove(h);
-                                                                                numbertomove(i);
-                                                                                numbertomove(j);
-                                                                                numbertomove(k);
-                                                                                numbertomove(l);
-                                                                                numbertomove(m);
-                                                                                numbertomove(n);
-                                                                                numbertomove(o);
-                                                                                numbertomove(p);
-                                                                                numbertomove(q);
-                                                                                if (IsSolved()) {
-                                                                                    std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                                    printmove(a);
-                                                                                    printmove(b);
-                                                                                    printmove(c);
-                                                                                    printmove(d);
-                                                                                    printmove(e);
-                                                                                    printmove(f);
-                                                                                    printmove(g);
-                                                                                    printmove(h);
-                                                                                    printmove(i);
-                                                                                    printmove(j);
-                                                                                    printmove(k);
-                                                                                    printmove(l);
-                                                                                    printmove(m);
-                                                                                    printmove(n);
-                                                                                    printmove(o);
-                                                                                    printmove(p);
-                                                                                    printmove(q);
-                                                                                    goto label;
-                                                                                } else {
-                                                                                    for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                        for (int j=0;j<9;j++) {
-                                                                                            unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==18) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        for (char p='a';p<'a'+12;p++) {
-                                                                            for (char q='a';q<'a'+12;q++) {
-                                                                                for (char r='a';r<'a'+12;r++) {
-                                                                                    numbertomove(a);
-                                                                                    numbertomove(b);
-                                                                                    numbertomove(c);
-                                                                                    numbertomove(d);
-                                                                                    numbertomove(e);
-                                                                                    numbertomove(f);
-                                                                                    numbertomove(g);
-                                                                                    numbertomove(h);
-                                                                                    numbertomove(i);
-                                                                                    numbertomove(j);
-                                                                                    numbertomove(k);
-                                                                                    numbertomove(l);
-                                                                                    numbertomove(m);
-                                                                                    numbertomove(n);
-                                                                                    numbertomove(o);
-                                                                                    numbertomove(p);
-                                                                                    numbertomove(q);
-                                                                                    numbertomove(r);
-                                                                                    if (IsSolved()) {
-                                                                                        std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                                        printmove(a);
-                                                                                        printmove(b);
-                                                                                        printmove(c);
-                                                                                        printmove(d);
-                                                                                        printmove(e);
-                                                                                        printmove(f);
-                                                                                        printmove(g);
-                                                                                        printmove(h);
-                                                                                        printmove(i);
-                                                                                        printmove(j);
-                                                                                        printmove(k);
-                                                                                        printmove(l);
-                                                                                        printmove(m);
-                                                                                        printmove(n);
-                                                                                        printmove(o);
-                                                                                        printmove(p);
-                                                                                        printmove(q);
-                                                                                        printmove(r);
-                                                                                        goto label;
-                                                                                    } else {
-                                                                                        for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                            for (int j=0;j<9;j++) {
-                                                                                                unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        } else if (depth==19) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        for (char p='a';p<'a'+12;p++) {
-                                                                            for (char q='a';q<'a'+12;q++) {
-                                                                                for (char r='a';r<'a'+12;r++) {
-                                                                                    for (char s='a';s<'a'+12;s++) {
-                                                                                        numbertomove(a);
-                                                                                        numbertomove(b);
-                                                                                        numbertomove(c);
-                                                                                        numbertomove(d);
-                                                                                        numbertomove(e);
-                                                                                        numbertomove(f);
-                                                                                        numbertomove(g);
-                                                                                        numbertomove(h);
-                                                                                        numbertomove(i);
-                                                                                        numbertomove(j);
-                                                                                        numbertomove(k);
-                                                                                        numbertomove(l);
-                                                                                        numbertomove(m);
-                                                                                        numbertomove(n);
-                                                                                        numbertomove(o);
-                                                                                        numbertomove(p);
-                                                                                        numbertomove(q);
-                                                                                        numbertomove(r);
-                                                                                        numbertomove(s);
-                                                                                        if (IsSolved()) {
-                                                                                            std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                                            printmove(a);
-                                                                                            printmove(b);
-                                                                                            printmove(c);
-                                                                                            printmove(d);
-                                                                                            printmove(e);
-                                                                                            printmove(f);
-                                                                                            printmove(g);
-                                                                                            printmove(h);
-                                                                                            printmove(i);
-                                                                                            printmove(j);
-                                                                                            printmove(k);
-                                                                                            printmove(l);
-                                                                                            printmove(m);
-                                                                                            printmove(n);
-                                                                                            printmove(o);
-                                                                                            printmove(p);
-                                                                                            printmove(q);
-                                                                                            printmove(r);
-                                                                                            printmove(s);
-                                                                                            goto label;
-                                                                                        } else {
-                                                                                            for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                                for (int j=0;j<9;j++) {
-                                                                                                    unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::cout<<"Now searching depth "<<depth+1<<"..."<<std::endl;
-            IDDFS(depth+1);
-        }else if (depth==20) {
-            for (char a='a';a<'a'+12;a++) {
-                for (char b='a';b<'a'+12;b++) {
-                    for (char c='a';c<'a'+12;c++) {
-                        for (char d='a';d<'a'+12;d++) {
-                            for (char e='a';e<'a'+12;e++) {
-                                for (char f='a';f<'a'+12;f++) {
-                                    for (char g='a';g<'a'+12;g++) {
-                                        for (char h='a';h<'a'+12;h++) {
-                                            for (char i='a';i<'a'+12;i++) {
-                                                for (char j='a';i<'a'+12;j++) {
-                                                    for (char k='a';k<'a'+12;k++) {
-                                                        for (char l='a';l<'a'+12;l++) {
-                                                            for (char m='a';m<'a'+12;m++) {
-                                                                for (char n='a';n<'a'+12;n++) {
-                                                                    for (char o='a';o<'a'+12;o++) {
-                                                                        for (char p='a';p<'a'+12;p++) {
-                                                                            for (char q='a';q<'a'+12;q++) {
-                                                                                for (char r='a';r<'a'+12;r++) {
-                                                                                    for (char s='a';s<'a'+12;s++) {
-                                                                                        for (char t='a';t<'a'+12;a++) {
-                                                                                            numbertomove(a);
-                                                                                            numbertomove(b);
-                                                                                            numbertomove(c);
-                                                                                            numbertomove(d);
-                                                                                            numbertomove(e);
-                                                                                            numbertomove(f);
-                                                                                            numbertomove(g);
-                                                                                            numbertomove(h);
-                                                                                            numbertomove(i);
-                                                                                            numbertomove(j);
-                                                                                            numbertomove(k);
-                                                                                            numbertomove(l);
-                                                                                            numbertomove(m);
-                                                                                            numbertomove(n);
-                                                                                            numbertomove(o);
-                                                                                            numbertomove(p);
-                                                                                            numbertomove(q);
-                                                                                            numbertomove(r);
-                                                                                            numbertomove(s);
-                                                                                            numbertomove(t);
-                                                                                            if (IsSolved()) {
-                                                                                                std::cout<<"Solved! Steps for solving: "<<std::endl;
-                                                                                                printmove(a);
-                                                                                                printmove(b);
-                                                                                                printmove(c);
-                                                                                                printmove(d);
-                                                                                                printmove(e);
-                                                                                                printmove(f);
-                                                                                                printmove(g);
-                                                                                                printmove(h);
-                                                                                                printmove(i);
-                                                                                                printmove(j);
-                                                                                                printmove(k);
-                                                                                                printmove(l);
-                                                                                                printmove(m);
-                                                                                                printmove(n);
-                                                                                                printmove(o);
-                                                                                                printmove(p);
-                                                                                                printmove(q);
-                                                                                                printmove(r);
-                                                                                                printmove(s);
-                                                                                                printmove(t);
-                                                                                                goto label;//guarantees loop termination
-                                                                                            } else {
-                                                                                                for (int i=0;i<6;i++) {//reassign values of originalmatrix to unsolvedmatrix before trying again
-                                                                                                    for (int j=0;j<9;j++) {
-                                                                                                        unsolvedmatrix[i][j]=originalmatrix[i][j];
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-    } while (depth<21);
-    
-    std::cout<<"Solution was not found. That is a weird, weird cube state. By the way, how old are you now? :D"<<std::endl;//Theory indicates that this should never print. The maximum number of moves to solve a cube in any state is supposed to be 20.
-    
-label:
-    std::cout<<"To solve the cube using the generated moves, hold the cube such that the green center is facing down and the red center is facing you."<<std::endl;
-    std::exit(0);//from cstdlib. Pretty cool, right?
-    
-}
-
+#endif
