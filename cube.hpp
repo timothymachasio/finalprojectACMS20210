@@ -1588,7 +1588,6 @@ void Cube::numbertomove(char const& x) {
             //std::cout<<"If this prints, there is a problem where the 'numbertomove' function is called"<<std::endl;
         }
     }
-    
 };
 
 //function to reverse the move that was just performed
@@ -1649,7 +1648,6 @@ void Cube::undo_move(char i){
             B();
             break;
         }
-
     }
 };  
 
