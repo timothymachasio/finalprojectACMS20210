@@ -14,6 +14,5 @@ int main() {//We would just like to mention that we're so proud of how short the
     Rubix.Make();//Self-contained function allows user to input state of the cube, and validates the input before the rest of the code runs.
     
     Rubix.solve_cube();//initiates the iterative deepening depth-first search starting from Depth 1. A heuristic function to estimate the lower bound of the depth at which the IDDFS should start running would very much be in order right about here.
-
-return 0;
+    //solve_cube automatically returns 0 and ends the program once a solution is found
 }
