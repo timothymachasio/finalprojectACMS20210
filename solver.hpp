@@ -15,7 +15,6 @@ class Solver{
         void Make(void); 
         //Runs the solving function
         void solve_cube(void);
-
         //function takes in number representing move and prints out the corresponding move
         void printmove(char const& x);
 
@@ -32,10 +31,10 @@ void Solver::Make(){
 //Runs the Cube solving sequence
 void Solver::solve_cube(){
 	std::time_t start = std::time(NULL);//to keep track of how long the program runs for
-    std::vector<Cube*> states; //Vector of pointers to Cube objects
-    states.push_back(&original_cube);
-    std::vector<Cube*> next_states; //A buffer vector to store the pointers at each depth after the moves are performed on each Cube
-    int depth = 0;
+	std::vector<Cube*> states; //Vector of pointers to Cube objects
+	states.push_back(&original_cube);
+	std::vector<Cube*> next_states; //A buffer vector to store the pointers at each depth after the moves are performed on each Cube
+    	int depth = 0;
 
     if(states[0] -> IsSolved()){
         std::cout<<"The cube is already solved. There's no work for me here."<<std::endl;
@@ -71,17 +70,14 @@ void Solver::solve_cube(){
                 }
                 states[i] -> undo_move(j); //If a solution is not found, the move is undone on states[i] so the next move can be tried
            }
-        }
-            //Deletes the memory allocated to pointers at each depth after it has been fully tested
-            for(int i=0; i<states.size(); i++){
+           //Deletes the memory allocated to pointers at each depth after it has been fully tested
+           if(depth != 1){
                 delete states[i];
             }
         }
-
         //Copies next_states into states to be used at the next depth
         states.clear();
         states = next_states;
-
     }
 };
 
@@ -148,6 +144,5 @@ void Solver::printmove(char const& x) {
         }
     }
 }
-
 
 #endif
