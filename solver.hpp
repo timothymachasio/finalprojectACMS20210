@@ -42,7 +42,7 @@ void Solver::solve_cube(){
     }
 
     //THIS IS THE MAIN RECURSIVE SOLVING FUNCTION
-    while(true){
+    while(depth<21){
         depth++;
         next_states.clear();
         std::cout<<"Testing cubes at depth "<<depth<<std::endl;
